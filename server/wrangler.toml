@@ -1,0 +1,8 @@
+name = "dodge-the-swing-stats"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# wrangler kv namespace create STATS   ->  paste the id it prints here
+[[kv_namespaces]]
+binding = "STATS"
+id = "PASTE_YOUR_KV_ID_HERE"

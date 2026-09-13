@@ -1,0 +1,12 @@
+# Music is left out of the public repo on purpose: the GD soundtrack is 16
+# complete songs by Waterflame, DJVI, F-777, MDK, DJ-Nate and Step, and those
+# are the artists' work, not RobTop's to license. Same for any track you added
+# yourself. They stay on your machine and the game just runs silent without
+# them. To publish them anyway it is one command - see README.md.
+assets-local/music/
+music/*.mp3
+
+# local like-server data
+server/stats.json
+
+.DS_Store

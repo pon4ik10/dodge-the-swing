@@ -1,0 +1,1064 @@
+window.GD_FRAMES = {
+ "arrow": {
+  "file": "arrow.png",
+  "h": 40.0,
+  "w": 32.5
+ },
+ "bg": {
+  "file": "bg.png",
+  "h": 512.0,
+  "w": 512.0
+ },
+ "boost1": {
+  "file": "boost1.png",
+  "h": 43.5,
+  "w": 35.0
+ },
+ "boost2": {
+  "file": "boost2.png",
+  "h": 56.5,
+  "w": 33.0
+ },
+ "boost3": {
+  "file": "boost3.png",
+  "h": 56.5,
+  "w": 50.5
+ },
+ "boost4": {
+  "file": "boost4.png",
+  "h": 56.5,
+  "w": 65.0
+ },
+ "boost5": {
+  "file": "boost5.png",
+  "h": 56.5,
+  "w": 69.0
+ },
+ "checkOn": {
+  "file": "checkOn.png",
+  "h": 23.5,
+  "w": 24.5
+ },
+ "checkpoint": {
+  "file": "checkpoint.png",
+  "h": 31.5,
+  "w": 17.0
+ },
+ "checkpointGlow": {
+  "file": "checkpointGlow.png",
+  "h": 39.0,
+  "w": 24.5
+ },
+ "chest": {
+  "file": "chest.png",
+  "h": 46.5,
+  "w": 47.0
+ },
+ "chestIcon": {
+  "file": "chestIcon.png",
+  "h": 10.0,
+  "w": 12.0
+ },
+ "chestOpen": {
+  "file": "chestOpen.png",
+  "h": 65.5,
+  "w": 57.5
+ },
+ "coinUI": {
+  "file": "coinUI.png",
+  "h": 43.5,
+  "w": 44.0
+ },
+ "coin_1": {
+  "file": "coin_1.png",
+  "h": 40.0,
+  "w": 40.0
+ },
+ "coin_2": {
+  "file": "coin_2.png",
+  "h": 40.0,
+  "w": 34.0
+ },
+ "coin_2_1": {
+  "file": "coin_2_1.png",
+  "h": 40.0,
+  "w": 40.0
+ },
+ "coin_2_2": {
+  "file": "coin_2_2.png",
+  "h": 40.0,
+  "w": 34.25
+ },
+ "coin_2_3": {
+  "file": "coin_2_3.png",
+  "h": 40.0,
+  "w": 10.0
+ },
+ "coin_2_4": {
+  "file": "coin_2_4.png",
+  "h": 40.0,
+  "w": 34.25
+ },
+ "coin_3": {
+  "file": "coin_3.png",
+  "h": 40.0,
+  "w": 10.0
+ },
+ "coin_4": {
+  "file": "coin_4.png",
+  "h": 40.0,
+  "w": 34.0
+ },
+ "coin_b_1": {
+  "file": "coin_b_1.png",
+  "h": 39.5,
+  "w": 39.5
+ },
+ "coin_b_2": {
+  "file": "coin_b_2.png",
+  "h": 39.5,
+  "w": 33.5
+ },
+ "coin_b_3": {
+  "file": "coin_b_3.png",
+  "h": 39.5,
+  "w": 9.5
+ },
+ "coin_b_4": {
+  "file": "coin_b_4.png",
+  "h": 39.5,
+  "w": 33.5
+ },
+ "cube": {
+  "file": "cube.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube1": {
+  "file": "cube1.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube10": {
+  "file": "cube10.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube100": {
+  "file": "cube100.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube100_2": {
+  "file": "cube100_2.png",
+  "h": 20.0,
+  "w": 26.0
+ },
+ "cube100_x": {
+  "file": "cube100_x.png",
+  "h": 20.0,
+  "w": 25.0
+ },
+ "cube104": {
+  "file": "cube104.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube104_2": {
+  "file": "cube104_2.png",
+  "h": 23.0,
+  "w": 19.0
+ },
+ "cube104_x": {
+  "file": "cube104_x.png",
+  "h": 25.0,
+  "w": 37.0
+ },
+ "cube106": {
+  "file": "cube106.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube106_2": {
+  "file": "cube106_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube106_x": {
+  "file": "cube106_x.png",
+  "h": 27.0,
+  "w": 27.0
+ },
+ "cube10_2": {
+  "file": "cube10_2.png",
+  "h": 15.0,
+  "w": 21.0
+ },
+ "cube112": {
+  "file": "cube112.png",
+  "h": 31.0,
+  "w": 31.0
+ },
+ "cube112_2": {
+  "file": "cube112_2.png",
+  "h": 29.0,
+  "w": 29.0
+ },
+ "cube112_x": {
+  "file": "cube112_x.png",
+  "h": 28.0,
+  "w": 29.0
+ },
+ "cube118": {
+  "file": "cube118.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube118_2": {
+  "file": "cube118_2.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube118_x": {
+  "file": "cube118_x.png",
+  "h": 23.0,
+  "w": 27.0
+ },
+ "cube124": {
+  "file": "cube124.png",
+  "h": 31.0,
+  "w": 31.0
+ },
+ "cube124_2": {
+  "file": "cube124_2.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube126": {
+  "file": "cube126.png",
+  "h": 31.0,
+  "w": 34.0
+ },
+ "cube126_2": {
+  "file": "cube126_2.png",
+  "h": 28.0,
+  "w": 32.0
+ },
+ "cube130": {
+  "file": "cube130.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube130_2": {
+  "file": "cube130_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube136": {
+  "file": "cube136.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube136_2": {
+  "file": "cube136_2.png",
+  "h": 29.0,
+  "w": 29.0
+ },
+ "cube136_x": {
+  "file": "cube136_x.png",
+  "h": 16.0,
+  "w": 28.0
+ },
+ "cube142": {
+  "file": "cube142.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube142_2": {
+  "file": "cube142_2.png",
+  "h": 23.0,
+  "w": 23.0
+ },
+ "cube142_x": {
+  "file": "cube142_x.png",
+  "h": 23.0,
+  "w": 22.0
+ },
+ "cube144": {
+  "file": "cube144.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube144_2": {
+  "file": "cube144_2.png",
+  "h": 22.0,
+  "w": 22.0
+ },
+ "cube148": {
+  "file": "cube148.png",
+  "h": 30.0,
+  "w": 32.0
+ },
+ "cube148_2": {
+  "file": "cube148_2.png",
+  "h": 27.0,
+  "w": 27.0
+ },
+ "cube148_x": {
+  "file": "cube148_x.png",
+  "h": 8.0,
+  "w": 21.0
+ },
+ "cube154": {
+  "file": "cube154.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube154_2": {
+  "file": "cube154_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube154_x": {
+  "file": "cube154_x.png",
+  "h": 23.0,
+  "w": 24.0
+ },
+ "cube158": {
+  "file": "cube158.png",
+  "h": 31.0,
+  "w": 31.0
+ },
+ "cube158_2": {
+  "file": "cube158_2.png",
+  "h": 29.0,
+  "w": 29.0
+ },
+ "cube158_x": {
+  "file": "cube158_x.png",
+  "h": 32.0,
+  "w": 29.0
+ },
+ "cube16": {
+  "file": "cube16.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube160": {
+  "file": "cube160.png",
+  "h": 31.0,
+  "w": 31.0
+ },
+ "cube160_2": {
+  "file": "cube160_2.png",
+  "h": 29.0,
+  "w": 29.0
+ },
+ "cube160_x": {
+  "file": "cube160_x.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube166": {
+  "file": "cube166.png",
+  "h": 34.0,
+  "w": 34.0
+ },
+ "cube166_2": {
+  "file": "cube166_2.png",
+  "h": 31.0,
+  "w": 32.0
+ },
+ "cube16_2": {
+  "file": "cube16_2.png",
+  "h": 21.0,
+  "w": 21.0
+ },
+ "cube172": {
+  "file": "cube172.png",
+  "h": 31.0,
+  "w": 33.0
+ },
+ "cube172_2": {
+  "file": "cube172_2.png",
+  "h": 29.0,
+  "w": 31.0
+ },
+ "cube178": {
+  "file": "cube178.png",
+  "h": 31.0,
+  "w": 31.0
+ },
+ "cube178_2": {
+  "file": "cube178_2.png",
+  "h": 22.0,
+  "w": 26.0
+ },
+ "cube180": {
+  "file": "cube180.png",
+  "h": 31.0,
+  "w": 31.0
+ },
+ "cube180_2": {
+  "file": "cube180_2.png",
+  "h": 27.0,
+  "w": 28.0
+ },
+ "cube180_x": {
+  "file": "cube180_x.png",
+  "h": 15.0,
+  "w": 19.0
+ },
+ "cube184": {
+  "file": "cube184.png",
+  "h": 31.0,
+  "w": 30.0
+ },
+ "cube184_2": {
+  "file": "cube184_2.png",
+  "h": 28.0,
+  "w": 29.0
+ },
+ "cube190": {
+  "file": "cube190.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube190_2": {
+  "file": "cube190_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube196": {
+  "file": "cube196.png",
+  "h": 31.0,
+  "w": 33.0
+ },
+ "cube196_2": {
+  "file": "cube196_2.png",
+  "h": 28.0,
+  "w": 30.0
+ },
+ "cube196_x": {
+  "file": "cube196_x.png",
+  "h": 17.0,
+  "w": 30.0
+ },
+ "cube1_2": {
+  "file": "cube1_2.png",
+  "h": 7.0,
+  "w": 7.0
+ },
+ "cube2": {
+  "file": "cube2.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube20": {
+  "file": "cube20.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube202": {
+  "file": "cube202.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube202_2": {
+  "file": "cube202_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube208": {
+  "file": "cube208.png",
+  "h": 30.0,
+  "w": 31.0
+ },
+ "cube208_2": {
+  "file": "cube208_2.png",
+  "h": 14.0,
+  "w": 11.0
+ },
+ "cube208_x": {
+  "file": "cube208_x.png",
+  "h": 13.0,
+  "w": 11.0
+ },
+ "cube20_2": {
+  "file": "cube20_2.png",
+  "h": 24.0,
+  "w": 24.0
+ },
+ "cube214": {
+  "file": "cube214.png",
+  "h": 30.0,
+  "w": 31.0
+ },
+ "cube214_2": {
+  "file": "cube214_2.png",
+  "h": 28.0,
+  "w": 29.0
+ },
+ "cube22": {
+  "file": "cube22.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube220": {
+  "file": "cube220.png",
+  "h": 30.0,
+  "w": 31.0
+ },
+ "cube220_2": {
+  "file": "cube220_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube226": {
+  "file": "cube226.png",
+  "h": 32.0,
+  "w": 30.0
+ },
+ "cube226_2": {
+  "file": "cube226_2.png",
+  "h": 29.0,
+  "w": 26.0
+ },
+ "cube22_2": {
+  "file": "cube22_2.png",
+  "h": 24.0,
+  "w": 24.0
+ },
+ "cube232": {
+  "file": "cube232.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube232_2": {
+  "file": "cube232_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube234": {
+  "file": "cube234.png",
+  "h": 30.0,
+  "w": 32.0
+ },
+ "cube234_2": {
+  "file": "cube234_2.png",
+  "h": 23.0,
+  "w": 12.0
+ },
+ "cube238": {
+  "file": "cube238.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube238_2": {
+  "file": "cube238_2.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube238_x": {
+  "file": "cube238_x.png",
+  "h": 20.0,
+  "w": 27.0
+ },
+ "cube244": {
+  "file": "cube244.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube244_2": {
+  "file": "cube244_2.png",
+  "h": 25.0,
+  "w": 23.0
+ },
+ "cube246": {
+  "file": "cube246.png",
+  "h": 31.0,
+  "w": 30.0
+ },
+ "cube246_2": {
+  "file": "cube246_2.png",
+  "h": 28.0,
+  "w": 27.0
+ },
+ "cube246_x": {
+  "file": "cube246_x.png",
+  "h": 8.0,
+  "w": 21.0
+ },
+ "cube28": {
+  "file": "cube28.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube28_2": {
+  "file": "cube28_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube2_2": {
+  "file": "cube2_2.png",
+  "h": 15.0,
+  "w": 20.0
+ },
+ "cube3": {
+  "file": "cube3.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube34": {
+  "file": "cube34.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube34_2": {
+  "file": "cube34_2.png",
+  "h": 24.0,
+  "w": 24.0
+ },
+ "cube36": {
+  "file": "cube36.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube36_2": {
+  "file": "cube36_2.png",
+  "h": 23.0,
+  "w": 16.0
+ },
+ "cube3_2": {
+  "file": "cube3_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube4": {
+  "file": "cube4.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube40": {
+  "file": "cube40.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube40_2": {
+  "file": "cube40_2.png",
+  "h": 14.0,
+  "w": 16.0
+ },
+ "cube46": {
+  "file": "cube46.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube46_2": {
+  "file": "cube46_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube4_2": {
+  "file": "cube4_2.png",
+  "h": 17.0,
+  "w": 18.0
+ },
+ "cube5": {
+  "file": "cube5.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube50": {
+  "file": "cube50.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube50_2": {
+  "file": "cube50_2.png",
+  "h": 11.0,
+  "w": 16.0
+ },
+ "cube52": {
+  "file": "cube52.png",
+  "h": 30.0,
+  "w": 32.0
+ },
+ "cube52_2": {
+  "file": "cube52_2.png",
+  "h": 24.0,
+  "w": 25.0
+ },
+ "cube58": {
+  "file": "cube58.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube58_2": {
+  "file": "cube58_2.png",
+  "h": 24.0,
+  "w": 24.0
+ },
+ "cube5_2": {
+  "file": "cube5_2.png",
+  "h": 19.0,
+  "w": 17.0
+ },
+ "cube64": {
+  "file": "cube64.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube64_2": {
+  "file": "cube64_2.png",
+  "h": 20.0,
+  "w": 20.0
+ },
+ "cube66": {
+  "file": "cube66.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube66_2": {
+  "file": "cube66_2.png",
+  "h": 15.0,
+  "w": 20.0
+ },
+ "cube7": {
+  "file": "cube7.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube70": {
+  "file": "cube70.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube70_2": {
+  "file": "cube70_2.png",
+  "h": 23.0,
+  "w": 22.0
+ },
+ "cube76": {
+  "file": "cube76.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube76_2": {
+  "file": "cube76_2.png",
+  "h": 20.0,
+  "w": 20.0
+ },
+ "cube7_2": {
+  "file": "cube7_2.png",
+  "h": 14.0,
+  "w": 5.0
+ },
+ "cube82": {
+  "file": "cube82.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube82_2": {
+  "file": "cube82_2.png",
+  "h": 6.0,
+  "w": 6.0
+ },
+ "cube86": {
+  "file": "cube86.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube86_2": {
+  "file": "cube86_2.png",
+  "h": 7.0,
+  "w": 27.0
+ },
+ "cube88": {
+  "file": "cube88.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube88_2": {
+  "file": "cube88_2.png",
+  "h": 28.0,
+  "w": 28.0
+ },
+ "cube94": {
+  "file": "cube94.png",
+  "h": 30.0,
+  "w": 36.0
+ },
+ "cube94_2": {
+  "file": "cube94_2.png",
+  "h": 16.0,
+  "w": 33.0
+ },
+ "cube98": {
+  "file": "cube98.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "cube98_2": {
+  "file": "cube98_2.png",
+  "h": 28.0,
+  "w": 22.0
+ },
+ "cube98_x": {
+  "file": "cube98_x.png",
+  "h": 27.0,
+  "w": 21.0
+ },
+ "cube_2": {
+  "file": "cube_2.png",
+  "h": 7.0,
+  "w": 7.0
+ },
+ "diff00": {
+  "file": "diff00.png",
+  "h": 43.5,
+  "w": 30.0
+ },
+ "diff01": {
+  "file": "diff01.png",
+  "h": 43.5,
+  "w": 30.0
+ },
+ "diff02": {
+  "file": "diff02.png",
+  "h": 43.5,
+  "w": 43.0
+ },
+ "diff03": {
+  "file": "diff03.png",
+  "h": 42.5,
+  "w": 30.0
+ },
+ "diff04": {
+  "file": "diff04.png",
+  "h": 42.5,
+  "w": 42.5
+ },
+ "diff05": {
+  "file": "diff05.png",
+  "h": 43.5,
+  "w": 38.0
+ },
+ "diff06": {
+  "file": "diff06.png",
+  "h": 45.0,
+  "w": 36.0
+ },
+ "diff07": {
+  "file": "diff07.png",
+  "h": 43.0,
+  "w": 36.0
+ },
+ "diff08": {
+  "file": "diff08.png",
+  "h": 43.0,
+  "w": 36.0
+ },
+ "diff09": {
+  "file": "diff09.png",
+  "h": 45.0,
+  "w": 37.0
+ },
+ "diff10": {
+  "file": "diff10.png",
+  "h": 47.5,
+  "w": 40.0
+ },
+ "floorline": {
+  "file": "floorline.png",
+  "h": 1.5,
+  "w": 444.0
+ },
+ "gradBG": {
+  "file": "gradBG.png",
+  "h": 320.0,
+  "w": 30.0
+ },
+ "ground": {
+  "file": "ground.png",
+  "h": 128.0,
+  "w": 128.0
+ },
+ "levelComplete": {
+  "file": "levelComplete.png",
+  "h": 46.5,
+  "w": 379.0
+ },
+ "likeBtn": {
+  "file": "likeBtn.png",
+  "h": 47.5,
+  "w": 46.0
+ },
+ "likesIcon": {
+  "file": "likesIcon.png",
+  "h": 23.5,
+  "w": 24.0
+ },
+ "lock": {
+  "file": "lock.png",
+  "h": 27.5,
+  "w": 23.0
+ },
+ "menuBtn": {
+  "file": "menuBtn.png",
+  "h": 64.5,
+  "w": 61.5
+ },
+ "nextBtn": {
+  "file": "nextBtn.png",
+  "h": 81.5,
+  "w": 78.5
+ },
+ "panel": {
+  "file": "panel.png",
+  "h": 80.0,
+  "w": 80.0
+ },
+ "playBtn": {
+  "file": "playBtn.png",
+  "h": 109.5,
+  "w": 109.5
+ },
+ "playsIcon": {
+  "file": "playsIcon.png",
+  "h": 23.5,
+  "w": 23.5
+ },
+ "practiceBtn": {
+  "file": "practiceBtn.png",
+  "h": 64.5,
+  "w": 61.5
+ },
+ "practiceComplete": {
+  "file": "practiceComplete.png",
+  "h": 39.0,
+  "w": 378.0
+ },
+ "practiceTxt": {
+  "file": "practiceTxt.png",
+  "h": 41.0,
+  "w": 69.5
+ },
+ "replayBtn": {
+  "file": "replayBtn.png",
+  "h": 64.5,
+  "w": 61.5
+ },
+ "ring1": {
+  "file": "ring1.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "ring2": {
+  "file": "ring2.png",
+  "h": 31.5,
+  "w": 31.5
+ },
+ "ring3": {
+  "file": "ring3.png",
+  "h": 30.0,
+  "w": 30.25
+ },
+ "ring4": {
+  "file": "ring4.png",
+  "h": 34.5,
+  "w": 38.75
+ },
+ "spike": {
+  "file": "spike.png",
+  "h": 30.0,
+  "w": 30.0
+ },
+ "spike_glow": {
+  "file": "spike_glow.png",
+  "h": 39.5,
+  "w": 37.0
+ },
+ "swing": {
+  "file": "swing.png",
+  "h": 30.0,
+  "w": 36.0
+ },
+ "swing_2": {
+  "file": "swing_2.png",
+  "h": 16.0,
+  "w": 21.0
+ },
+ "swing_x": {
+  "file": "swing_x.png",
+  "h": 20.0,
+  "w": 25.0
+ }
+};
+window.GD_MUSIC = {
+ "BackOnTrack": {
+  "file": "BackOnTrack.mp3",
+  "title": "BackOnTrack"
+ },
+ "BlastProcessing": {
+  "file": "BlastProcessing.mp3",
+  "title": "BlastProcessing"
+ },
+ "CantLetGo": {
+  "file": "CantLetGo.mp3",
+  "title": "CantLetGo"
+ },
+ "Clubstep": {
+  "file": "Clubstep.mp3",
+  "title": "Clubstep"
+ },
+ "Clutterfunk": {
+  "file": "Clutterfunk.mp3",
+  "title": "Clutterfunk"
+ },
+ "Deadlocked": {
+  "file": "Deadlocked.mp3",
+  "title": "Deadlocked"
+ },
+ "Electrodynamix": {
+  "file": "Electrodynamix.mp3",
+  "title": "Electrodynamix"
+ },
+ "Fingerdash": {
+  "file": "Fingerdash.mp3",
+  "title": "Fingerdash"
+ },
+ "GeometricalDominator": {
+  "file": "GeometricalDominator.mp3",
+  "title": "GeometricalDominator"
+ },
+ "HexagonForce": {
+  "file": "HexagonForce.mp3",
+  "title": "HexagonForce"
+ },
+ "Jumper": {
+  "file": "Jumper.mp3",
+  "title": "Jumper"
+ },
+ "Polargeist": {
+  "file": "Polargeist.mp3",
+  "title": "Polargeist"
+ },
+ "StereoMadness": {
+  "file": "StereoMadness.mp3",
+  "title": "StereoMadness"
+ },
+ "TheoryOfEverything2": {
+  "file": "TheoryOfEverything2.mp3",
+  "title": "TheoryOfEverything2"
+ },
+ "TimeMachine": {
+  "file": "TimeMachine.mp3",
+  "title": "TimeMachine"
+ },
+ "menuLoop": {
+  "file": "menuLoop.mp3",
+  "title": "menuLoop"
+ }
+};
+window.GD_CUBES = [1, 2, 3, 4, 5, 7, 16, 22, 28, 34, 46, 52, 64, 70, 76, 82, 88, 100, 106, 118, 124, 130, 136, 148, 160, 166, 172, 10, 40, 58, 94, 112, 142, 154, 178, 184, 244, 190, 196, 202, 208, 214, 220, 226, 232, 238, 20, 36, 50, 66, 86, 104, 126, 158, 180, 246, 98, 144, 234];
