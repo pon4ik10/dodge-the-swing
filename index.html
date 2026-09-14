@@ -880,10 +880,15 @@ const BOSS_SIZE = 76;
 
 /* Which levels end in a fight, and how nasty it is. You cannot kill it - you
    stay alive until it burns itself out. Keyed by level index. */
+/* aim  = how long it stalks you before locking on
+   charge = the telegraph, your window to get out of the column
+   A long aim meant the first boss fired twice in a whole fight and mostly just
+   hovered. Shorter stalking, so it actually shoots; the telegraph stays
+   generous on the early one and tightens later. */
 const BOSSES = {
-  2: { secs:14, follow:0.010, aim:3.2, charge:1.15, beam:20, minion:3.6 },  // Rotor Rush
-  5: { secs:19, follow:0.016, aim:2.5, charge:0.95, beam:26, minion:2.6 },  // Freefall
-  9: { secs:25, follow:0.024, aim:1.9, charge:0.75, beam:32, minion:1.8 },  // Extinction
+  2: { secs:16, follow:0.014, aim:1.70, charge:0.85, beam:22, minion:2.3 },  // Rotor Rush
+  5: { secs:20, follow:0.019, aim:1.35, charge:0.80, beam:27, minion:1.8 },  // Freefall
+  9: { secs:25, follow:0.028, aim:0.85, charge:0.58, beam:33, minion:1.3 },  // Extinction
 };
 
 /* Your channel. Put the URL here and the button on the home screen works.
@@ -4090,7 +4095,13 @@ function snapshot() {
     portals: portals.map(o => ({ x:o.x, y:o.y, tier:o.tier, hit:o.hit })),
     drops: drops.map(o => ({ x:o.x, y:o.y, vy:o.vy, key:o.key, r:o.r, spin:o.spin })),
     fx: Object.assign({}, run.fx), inv:run.inv, powerT:run.powerT, airJumps:player.airJumps,
-    markX: player.x + player.size/2
+    markX: player.x + player.size/2,
+    // The boss is part of the world too. Left out, a practice checkpoint taken
+    // during a boss restored the level around a boss frozen in whatever state
+    // it happened to be in.
+    inBoss: run.inBoss, bossT: run.bossT, bossMin: run.bossMin,
+    boss: boss ? { x:boss.x, y:boss.y, mode:boss.mode, t:boss.t,
+                   beamX:boss.beamX, eye:boss.eye, shatter:boss.shatter, cfg:boss.cfg } : null
   };
 }
 function restoreCheckpoint() {
@@ -4116,6 +4127,10 @@ function restoreSnap(c) {
   run.inv = c.inv || 0;
   if (typeof c.powerT === 'number') run.powerT = c.powerT;
   player.airJumps = c.airJumps || 0;
+  run.inBoss = !!c.inBoss;
+  run.bossT = c.bossT || 0;
+  run.bossMin = c.bossMin || 0;
+  boss = c.boss ? Object.assign({}, c.boss) : null;
   parts = []; pops = [];
   run.restore = false;
   state = 'play';
@@ -4641,17 +4656,21 @@ function drawBoss() {
   else { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(boss.x, boss.y, BOSS_SIZE/2, 0, 6.283); ctx.fill(); }
   ctx.restore();
 
-  // the eye, lit while it aims
-  ctx.save();
+  // The eye only opens while it is aiming. It used to sit there permanently as
+  // a flat circle in the level's swingcopter colour, which on Rotor Rush is
+  // pure yellow - a stray dot stuck on the body rather than part of it.
   const glow = boss.mode === 'charge' ? (1 - clamp(boss.t / c.charge, 0, 1)) :
-               (boss.mode === 'fire' ? 1 : 0.25);
-  ctx.globalAlpha = dying ? 0 : 1;
-  ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 10 + glow * 22;
-  ctx.fillStyle = glow > 0.5 ? '#ffffff' : col;
-  ctx.beginPath();
-  ctx.arc(boss.x, boss.y + 10, 7 + glow * 5, 0, 6.283);
-  ctx.fill();
-  ctx.restore();
+               (boss.mode === 'fire' ? 1 : 0);
+  if (!dying && glow > 0.02) {
+    const r = 5 + glow * 6;
+    ctx.save();
+    ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 8 + glow * 24;
+    ctx.fillStyle = 'rgba(8,16,28,.92)';            // a socket, so it reads as an eye
+    ctx.beginPath(); ctx.arc(boss.x, boss.y, r + 3.5, 0, 6.283); ctx.fill();
+    ctx.fillStyle = glow > 0.55 ? '#ffffff' : col;  // pupil brightens as it locks on
+    ctx.beginPath(); ctx.arc(boss.x, boss.y, r, 0, 6.283); ctx.fill();
+    ctx.restore();
+  }
 }
 
 function drawBossHUD() {
