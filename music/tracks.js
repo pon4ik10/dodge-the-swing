@@ -11,7 +11,7 @@
  *   'Name.mp3'     -> music/                (this folder)
  */
 window.CUSTOM_MUSIC = {
-  menu:    { file:'chopin-nocturne.mp3',          title:'Nocturne Op. 9 No. 2',   by:'Frederic Chopin (public domain work)' },
+  menu:    { file:'chopin-nocturne.mp3',          title:'Nocturne Op. 9 No. 2',   by:'Frederic Chopin - the music is public domain', pub:true },
   lvl1:    { file:'gd:BackOnTrack.mp3',           title:'Back On Track',          by:'DJVI', pub:true },
   lvl2:    { file:'gd:Polargeist.mp3',            title:'Polargeist',             by:'Step', pub:true },
   lvl3:    { file:'the-disturbance.mp3',          title:'The Disturbance',        by:'Newgrounds artist', ng:898361, pub:true },
