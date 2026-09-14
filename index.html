@@ -2302,9 +2302,11 @@ function accDone(d, note) {
   play('best'); buzz(25);
 }
 function accProblem(e, note) {
-  note.textContent = e.message === 'offline'
-    ? 'No server running - start it with:  node server/server.js 8790'
-    : e.message;
+  // A player is not going to start a Node server; only say that on the machine
+  // where it would actually mean something.
+  note.textContent = e.message !== 'offline' ? e.message
+    : DEV_BOX ? 'No server running - start it with:  node server/server.js 8790'
+              : 'Cannot reach the server - check your internet and try again';
 }
 function accRegister() {
   const { name, password } = accFields();
