@@ -8,23 +8,15 @@
  */
 window.CUSTOM_MUSIC = {
   menu:    { file:'chopin-nocturne.mp3',          title:'Nocturne Op. 9 No. 2',   by:'Frederic Chopin (public domain work)' },
-  // ---- DROP-IN SLOTS -------------------------------------------------------
-  // Download the song yourself, save it in music/ with EXACTLY this filename,
-  // and it plays automatically. Until then the fallback track plays instead.
-  // Nothing here needs editing.
-  lvl1:    { file:'fatrat.mp3',       title:'TheFatRat track',  by:'TheFatRat',
-             fallback:'gd:BackOnTrack.mp3', fallbackTitle:'Back On Track', fallbackBy:'DJVI' },
-  lvl2:    { file:'nine-circles.mp3', title:'Nine Circles',     by:'(Newgrounds artist)',
-             fallback:'gd:Polargeist.mp3',  fallbackTitle:'Polargeist',    fallbackBy:'Step' },
-  lvl3:    { file:'bloodbath.mp3',    title:'At the Speed of Light', by:'Dimrain47',
-             fallback:'gd:CantLetGo.mp3',   fallbackTitle:"Can't Let Go",  fallbackBy:'DJVI' },
-  // --------------------------------------------------------------------------
-  lvl4:    { file:'gd:Jumper.mp3',                title:'Jumper',                 by:'Waterflame' },
-  lvl5:    { file:'gd:TimeMachine.mp3',           title:'Time Machine',           by:'Waterflame' },
+  lvl1:    { file:'gd:BackOnTrack.mp3',           title:'Back On Track',          by:'DJVI' },
+  lvl2:    { file:'gd:Polargeist.mp3',            title:'Polargeist',             by:'Step' },
+  lvl3:    { file:'the-disturbance.mp3',          title:'The Disturbance',        by:'Newgrounds 898361' },
+  lvl4:    { file:'spaceship.mp3',                title:'SpaceShip GD',           by:'Newgrounds artist (727419)' },
+  lvl5:    { file:'axel-f-remix.mp3',             title:'Axel F Remix',           by:'Newgrounds artist (798782)' },
   lvl6:    { file:'gd:Clutterfunk.mp3',           title:'Clutterfunk',            by:'Waterflame' },
   lvl7:    { file:'gd:Electrodynamix.mp3',        title:'Electrodynamix',         by:'DJ-Nate' },
   lvl8:    { file:'gd:Clubstep.mp3',              title:'Clubstep',               by:'DJ-Nate' },
-  lvl9:    { file:'gd:TheoryOfEverything2.mp3',   title:'Theory of Everything 2', by:'DJ-Nate' },
+  lvl9:    { file:'at-the-speed-of-light.mp3',     title:'At the Speed of Light',  by:'Dimrain47' },
   lvl10:   { file:'shiawase-vip.mp3',             title:'Shiawase (Vip)',         by:'supplied by the player' },
   daily:   { file:'gd:HexagonForce.mp3',          title:'Hexagon Force',          by:'Waterflame' },
   // Endless rotates its look and track every attempt
@@ -43,10 +35,9 @@ window.CUSTOM_MUSIC = {
  *   gd:Deadlocked.mp3  (F-777)   gd:BlastProcessing.mp3 (Waterflame)
  *   gd:GeometricalDominator.mp3 (Waterflame)   gd:StereoMadness.mp3 (ForeverBound)
  *
- * Nine Circles and Bloodbath are community levels - their songs come from
- * Newgrounds and are NOT in the Geometry Dash install, so they cannot be
- * pulled from your copy of the game. Download one yourself where the licence
- * allows, drop it in music/, and point a slot at it.
+ *
+ * Every slot points at a file that exists. Nothing falls back, so the name on
+ * the level card is always the track that is actually playing.
  */
 window.EXTRA_CREDITS = [
   { what:'Sprites',      who:'Geometry Dash - RobTop Games' },

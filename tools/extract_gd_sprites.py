@@ -75,6 +75,9 @@ for _n, _f in {"practiceBtn":"GJ_practiceBtn_001.png",
 # GD's real speed portals are the "boost" chevrons: 0.5x, 1x, 2x, 3x, 4x
 for _i in range(1, 6):
     SPRITES[f"boost{_i}"] = ("GJ_GameSheet02", "-hd", f"boost_{_i:02d}_001.png")
+for _n, _f in {"saw1":"sawblade_01_001.png", "saw2":"sawblade_02_001.png",
+               "saw3":"sawblade_03_001.png"}.items():
+    SPRITES[_n] = ("GJ_GameSheet", "-uhd", _f)
 for _n, _f in {"ring1":"ring_01_001.png", "ring2":"ring_02_001.png",
                "ring3":"ring_03_001.png", "ring4":"dashRing_01_001.png"}.items():
     SPRITES[_n] = ("GJ_GameSheet", "-uhd", _f)

@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0a1f3c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="assets-local/pwa/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html, body { width:100%; height:100%; overflow:hidden; background:#06111f; }
@@ -136,11 +136,11 @@
   .credRow .cl { text-align:left; color:#dff1ff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .credRow .cr { text-align:right; color:#8fe4ff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .credRow.head { background:none; border:0; color:#7fb6d6; font-size:10px; letter-spacing:1.5px; }
-  #homeChest { background:none; border:0; padding:0; cursor:pointer; position:relative;
+  #onChest { background:none; border:0; padding:0; cursor:pointer; position:relative;
                transition:transform .1s; }
-  #homeChest img { width:54px; height:auto; filter:drop-shadow(0 4px 0 rgba(0,0,0,.4)); }
-  #homeChest:hover { transform:translateY(-2px) scale(1.05); }
-  #homeChest.ready::after {
+  #onChest img { width:54px; height:auto; filter:drop-shadow(0 4px 0 rgba(0,0,0,.4)); }
+  #onChest:hover { transform:translateY(-2px) scale(1.05); }
+  #onChest.ready::after {
     content:'!'; position:absolute; top:-4px; right:-4px; width:18px; height:18px;
     border-radius:50%; background:#ff4d6d; color:#fff; font-size:12px; font-weight:900;
     line-height:18px; box-shadow:0 0 10px rgba(255,77,109,.8);
@@ -160,6 +160,37 @@
                   font-size:12px; color:#bfe6ff; line-height:1.35; }
   .perkCard .pl { font-family:"Helvetica Neue",Arial,sans-serif; font-weight:900;
                   font-size:10px; letter-spacing:2px; color:#ffd23f; }
+  #edCanvas { width:min(900px,96vw); height:46vh; border-radius:10px;
+              border:2px solid #1d5a92; background:#08182b; touch-action:none; cursor:crosshair; }
+  #edName, #lvSearch, #sqInput, #accName, #accPass {
+    font-family:inherit; font-size:14px; letter-spacing:1px; text-transform:uppercase;
+    padding:8px 12px; width:min(220px,50vw); border-radius:9px; text-align:center;
+    background:#0b2036; border:2px solid #1d5a92; color:#dff1ff; outline:none;
+  }
+  #edName:focus, #lvSearch:focus, #sqInput:focus, #accName:focus, #accPass:focus { border-color:#4fb6ff; }
+  .tool { display:flex; flex-direction:column; align-items:center; gap:2px;
+          padding:5px 7px; border-radius:9px; cursor:pointer;
+          background:#12324d; border:2px solid #1d5a92; }
+  .tool canvas { width:34px; height:34px; display:block; }
+  .tool span { font-family:"Helvetica Neue",Arial,sans-serif; font-weight:800;
+               font-size:9px; letter-spacing:.5px; color:#bfe6ff; }
+  .tool.on { background:#1b4d78; border-color:#ffd23f; }
+  .tool.on span { color:#fff; }
+  #edInspect { background:rgba(18,58,99,.6); border:2px solid #1d5a92; border-radius:10px;
+               padding:7px 10px; gap:12px; width:min(900px,96vw); }
+  .insp { display:flex; align-items:center; gap:5px;
+          font-family:"Helvetica Neue",Arial,sans-serif; font-weight:800; font-size:11px; color:#9fd0ec; }
+  .insp b { color:#dff1ff; min-width:34px; text-align:center; font-size:12px; }
+  .insp button { width:22px; height:22px; border:0; border-radius:6px; cursor:pointer;
+                 background:#22608f; color:#dff1ff; font-weight:900; font-size:13px; line-height:1; }
+  .lvRow { display:grid; grid-template-columns:1fr 58px 62px 58px; align-items:center; gap:8px;
+           padding:9px 11px; border-radius:9px; background:rgba(18,58,99,.55);
+           border:1px solid #1d5a92; font-family:"Helvetica Neue",Arial,sans-serif;
+           font-weight:800; font-size:12px; }
+  .lvRow .ln { text-align:left; color:#dff1ff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lvRow .li { color:#7fb6d6; font-size:10px; }
+  .lvRow button { font-family:inherit; font-weight:800; font-size:11px; padding:5px 8px;
+                  border-radius:7px; border:0; cursor:pointer; background:#22608f; color:#dff1ff; }
   .setBox { width:min(430px,94%); display:flex; flex-direction:column; gap:10px; margin-top:6px; }
   .setRow { display:grid; grid-template-columns:110px 1fr 44px; align-items:center; gap:10px;
             padding:9px 12px; border-radius:10px; background:rgba(18,58,99,.55);
@@ -255,19 +286,17 @@
     <div class="title gdtext">Dodge the <span>Swing</span></div>
     <button class="playBig" id="homePlay"><img id="imgPlayBig" alt="Play"></button>
     <div class="row">
-      <button class="btn" id="homeEndless">Endless</button>
-      <button class="btn" id="homeDaily">Daily</button>
+      <button class="btn" id="homeOnline">Online</button>
+      <button class="btn" id="homeIcons">Icons</button>
     </div>
     <div class="row">
-      <button class="btn ghost" id="homeIcons">Icon Kit</button>
-      <button class="btn ghost" id="homeBoard">Records</button>
       <button class="btn ghost" id="homeSettings">Settings</button>
       <button class="btn ghost" id="homeCredits">Credits</button>
     </div>
     <div class="row">
-      <button id="homeChest" title="Subscriber chest"><img id="imgChestBtn" alt="Chest"></button>
+      <button class="btn" id="homeInstall" style="display:none">Install App</button>
     </div>
-
+    <div class="sub" id="installHint" style="display:none;max-width:320px"></div>
     <div class="note" id="artNote"></div>
     <button id="vaultDot" title="?">&#128274;</button>
   </div>
@@ -277,6 +306,99 @@
     <div class="title gdtext" style="font-size:clamp(20px,4.4vw,32px)">Pick One</div>
     <div class="sub" id="perkSub"></div>
     <div class="perkRow" id="perkRow"></div>
+  </div>
+
+  <!-- ================= online hub ================= -->
+  <div id="scr-online" class="screen hidden" style="justify-content:center;gap:14px">
+    <div class="title gdtext" style="font-size:clamp(22px,5vw,38px)">Online</div>
+    <div class="row">
+      <button class="btn" id="onCreate">Create</button>
+      <button class="btn" id="onSearch">Search</button>
+    </div>
+    <div class="row">
+      <button class="btn" id="onDaily">Daily</button>
+      <button class="btn" id="onEndless">Endless</button>
+      <button class="btn" id="onBoss">Boss</button>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="onRecords">Records</button>
+      <button id="onChest" title="Subscriber chest"><img id="imgChestBtn2" alt="Chest"></button>
+    </div>
+    <button class="btn ghost" id="onBack">Back</button>
+  </div>
+
+  <!-- ================= editor ================= -->
+  <div id="scr-editor" class="screen hidden" style="justify-content:flex-start;gap:8px">
+    <div class="row">
+      <input id="edName" type="text" maxlength="24" placeholder="LEVEL NAME" autocomplete="off">
+      <span class="sub">LENGTH</span>
+      <input id="edSecs" type="range" min="10" max="90" style="width:110px">
+      <span class="sub" id="edSecsV"></span>
+    </div>
+    <div class="row" id="edTools"></div>
+    <div class="row" id="edStyle"></div>
+    <canvas id="edCanvas"></canvas>
+    <div class="row" id="edInspect" style="display:none"></div>
+    <div class="row" style="width:min(900px,96vw)">
+      <span class="sub" id="edTimeV" style="min-width:52px">0.0s</span>
+      <input id="edTime" type="range" min="0" max="300" value="0" style="flex:1">
+    </div>
+    <div class="row">
+      <button class="btn" id="edTest">Test</button>
+      <button class="btn ghost" id="edSave">Save</button>
+      <button class="btn ghost" id="edUndo">Undo</button>
+      <button class="btn ghost" id="edDel">Delete</button>
+      <button class="btn ghost" id="edClear">Clear</button>
+      <button class="btn ghost" id="edBack">Back</button>
+    </div>
+    <div class="sub" id="edHint"></div>
+  </div>
+
+  <!-- ================= account ================= -->
+  <div id="scr-account" class="screen hidden" style="justify-content:center">
+    <div class="panel">
+      <div class="title gdtext" style="font-size:clamp(20px,4.4vw,30px)">Account</div>
+      <div id="accOut" style="display:flex;flex-direction:column;align-items:center;gap:9px">
+        <input id="accName" type="text" maxlength="20" placeholder="USERNAME" autocomplete="username">
+        <input id="accPass" type="password" maxlength="40" placeholder="PASSWORD" autocomplete="current-password">
+        <div class="row" style="margin-top:4px">
+          <button class="btn" id="accMake">Create Account</button>
+          <button class="btn ghost" id="accLogin">Sign In</button>
+        </div>
+        <div class="sub" style="font-size:11px">Password needs 6 characters or more.</div>
+      </div>
+      <div id="accIn" style="display:none;flex-direction:column;align-items:center;gap:8px">
+        <div class="sub">Signed in as</div>
+        <div class="gdtext" id="accWho" style="font-size:22px"></div>
+        <button class="btn ghost" id="accOut2">Sign Out</button>
+      </div>
+      <div class="note" id="accNote"></div>
+      <button class="btn ghost" id="accBack">Back</button>
+    </div>
+  </div>
+
+  <!-- ================= search ================= -->
+  <div id="scr-search" class="screen hidden">
+    <div class="title gdtext" style="font-size:clamp(22px,5vw,38px)">Search</div>
+    <div class="row">
+      <input id="sqInput" type="text" maxlength="24" placeholder="NAME OR LEVEL ID" autocomplete="off">
+      <button class="btn" id="sqGo">Search</button>
+      <button class="btn ghost" id="sqBack">Back</button>
+    </div>
+    <div class="sub" id="sqNote"></div>
+    <div class="recTable" id="sqList" style="max-width:640px"></div>
+  </div>
+
+  <!-- ================= my levels ================= -->
+  <div id="scr-mylevels" class="screen hidden">
+    <div class="title gdtext" style="font-size:clamp(22px,5vw,38px)">Levels</div>
+    <div class="row">
+      <button class="btn" id="lvNew">New Level</button>
+      <button class="btn ghost" id="lvBack">Back</button>
+    </div>
+    <div class="sub">Your levels. Pick one up where you left off.</div>
+    <div class="sub" id="lvPubNote" style="font-size:11px"></div>
+    <div class="recTable" id="lvList" style="max-width:640px"></div>
   </div>
 
   <!-- ================= daily ================= -->
@@ -326,6 +448,9 @@
         <button class="btn ghost tog" id="setHaptics"></button><div class="sv"></div></div>
       <div class="setRow"><div class="sl">SCREEN SHAKE</div>
         <button class="btn ghost tog" id="setFx"></button><div class="sv"></div></div>
+      <div class="setRow"><div class="sl">ACCOUNT</div>
+        <button class="btn ghost tog" id="setAccount">Account</button>
+        <div class="sv" id="setAccWho"></div></div>
     </div>
     <div class="sub" style="margin-top:10px">Turn shake off if the demons make you queasy.</div>
     <button class="btn ghost" id="setBack" style="margin-top:8px">Back</button>
@@ -545,6 +670,65 @@ const REWARDS     = [10, 40, 58, 94, 112, 142, 154, 178, 184, 244];   // beat th
 const COIN_REWARDS= [20, 36, 50, 66, 86, 104, 126, 158, 180, 246];   // beat it with all 3 coins
 
 /* ============================================================
+   HAND-BUILT LEVELS
+   A level is a list of objects with a time on them. Nothing is generated:
+   what you place is exactly what shows up, every run.
+
+     {t, k:'cop',  x}            swingcopter drops at x
+     {t, k:'spk',  s}            spike slides in from side s (-1 left, 1 right)
+     {t, k:'coin', x}            coin
+     {t, k:'prt',  n}            speed portal, tier n
+     {t, k:'saw',  x, y, a, r, v} sawblade patrolling an axis
+     {t, k:'mspk', x, r, v}      spike that rides up and down on the spot
+   ============================================================ */
+const OBJ_KINDS = ['cop', 'spk', 'coin', 'prt', 'saw', 'mspk'];
+let saws = [];
+
+function spawnObject(o) {
+  if (o.k === 'cop') {
+    copters.push({ x: clamp(o.x, 14, W-14), y:-40, vy: (o.vy || 190) / 60,
+                   vx: o.vx || 0, g: o.g || 1, flip: o.f || 22,
+                   size:26, prop:0, trail:[] });
+  } else if (o.k === 'spk') {
+    const sp = (o.v || 260) / 60;
+    spikes.push({ x: o.s < 0 ? -BLOCK : W + BLOCK, vx: o.s < 0 ? sp : -sp, w:BLOCK, h:BLOCK });
+  } else if (o.k === 'coin') {
+    pickups.push({ x: clamp(o.x, 20, W-20), y:-30, vy:175/60, sway:0, r:16,
+                   spin:0, idx: run.coinI++ });
+  } else if (o.k === 'prt') {
+    spawnPortal(clamp(o.n || 2, 0, 4));
+  } else if (o.k === 'saw') {
+    saws.push({ x0:o.x, y0:o.y, a:o.a || 'v', r:o.r || 70, v:(o.v || 1.1),
+                ph:0, x:o.x, y:o.y, spin:0, born:run.t,
+                dur:(o.dur === undefined ? 8 : o.dur) });
+  } else if (o.k === 'mspk') {
+    saws.push({ x0:o.x, y0:GROUND_Y - 15, a:'v', r:o.r || 60, v:(o.v || 1.0),
+                ph:0, x:o.x, y:GROUND_Y - 15, spin:0, spike:true,
+                born:run.t, dur:(o.dur === undefined ? 8 : o.dur) });
+  }
+}
+
+function updateSaws() {
+  const pb = playerBox();
+  for (let i = saws.length - 1; i >= 0; i--) {
+    const s = saws[i];
+    const age = run.t - s.born;
+    if (s.dur > 0 && age > s.dur) {            // its time is up, it leaves
+      burst(s.x, s.y, 8, ['#dfe9f5', '#ffffff'], 5, { min:2, max:5 });
+      saws.splice(i, 1);
+      continue;
+    }
+    s.fade = (s.dur > 0 && age > s.dur - 0.6) ? clamp((s.dur - age) / 0.6, 0, 1) : 1;
+    s.ph += STEP * s.v * slowMul();
+    s.spin += 0.22;
+    const off = Math.sin(s.ph * Math.PI) * s.r;
+    if (s.a === 'h') { s.x = clamp(s.x0 + off, 16, W-16); s.y = s.y0; }
+    else { s.x = s.x0; s.y = s.y0 - Math.abs(off); }
+    if (state === 'play' && s.fade > 0.35 && circleHitsBox(s.x, s.y, s.spike ? 9 : 15, pb)) die();
+  }
+}
+
+/* ============================================================
    POWER-UPS - drops that fall like coins. Not a Geometry Dash idea;
    an arena can carry items where an auto-runner cannot.
    ============================================================ */
@@ -728,6 +912,20 @@ function play(name) {
 }
 
 const MUS = { el:null, key:null };
+
+/* Visual pulse.
+   This used to tap the music with a WebAudio analyser, but
+   createMediaElementSource permanently reroutes the audio element - and if the
+   context is ever suspended (normal on file://, and resume() is async) the
+   music goes silent for good with no way back. A steady pulse is not worth
+   losing the soundtrack over, so it is driven by the clock instead. */
+let pulse = 0, punch = 0;
+
+function readPulse() {
+  const v = Math.pow(Math.max(0, Math.sin(scroll * 0.055)), 6) * 0.7;
+  pulse = Math.max(pulse * 0.86, v);
+  punch *= 0.85;
+}
 // browsers refuse to start audio before the page is interacted with, so the
 // first click or keypress retries whatever should already be playing
 let audioArmed = false;
@@ -878,6 +1076,7 @@ function buildArt() {
   ART.icon.floorline = compose([['floorline', '#eaffff']]);
   for (let i = 1; i <= 5; i++) ART.icon['boost' + i] = compose([['boost' + i, null]]);
   POWERS.forEach(P => { ART.icon[P.art] = compose([[P.art, P.col]]); });
+  ART.icon.saw            = compose([['saw3', null]]);
   ART.icon.checkpoint     = compose([['checkpoint', null]]);
   ART.icon.checkpointGlow = compose([['checkpointGlow', '#7cff9b']]);
   ART.ready = !!(ART.icon.spike && ART.icon.coin[0]);
@@ -902,7 +1101,7 @@ function wireUIImages() {
   set('imgPauResume','nextBtn');
   set('imgPauRestart','replayBtn');
   set('imgPauExit','menuBtn');
-  set('imgChestBtn','chest');
+  set('imgChestBtn2','chest');
   set('imgDailyPlay','nextBtn');
   set('imgDailyBack','menuBtn');
 }
@@ -928,6 +1127,16 @@ addEventListener('keydown', e => {
     else if (state === 'paused') resumeGame();
   }
   if (e.code === 'KeyR' && (state === 'play' || state === 'dying' || state === 'paused')) restartRun();
+  if (state === 'editor' && e.code === 'KeyZ' && (e.metaKey || e.ctrlKey)) {
+    edUndo(); e.preventDefault(); return;
+  }
+  if (state === 'editor' && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) {
+    ED.T = clamp(Math.round((ED.T + (e.code === 'ArrowRight' ? 0.1 : -0.1)) * 10) / 10, 0, ED.lv.secs);
+    edSyncTime(); e.preventDefault(); return;
+  }
+  if (state === 'editor' && (e.code === 'Delete' || e.code === 'Backspace') && ED.sel >= 0) {
+    edPush(); ED.lv.obj.splice(ED.sel, 1); ED.sel = -1; edHint(); buildInspector(); e.preventDefault();
+  }
 }, { passive:false });
 addEventListener('keyup', e => {
   if (e.target && e.target.tagName === 'INPUT') return;
@@ -986,6 +1195,11 @@ const screens = {
   settings: document.getElementById('scr-settings'),
   chest:    document.getElementById('scr-chest'),
   daily:    document.getElementById('scr-daily'),
+  online:   document.getElementById('scr-online'),
+  editor:   document.getElementById('scr-editor'),
+  mylevels: document.getElementById('scr-mylevels'),
+  search:   document.getElementById('scr-search'),
+  account:  document.getElementById('scr-account'),
   perks:    document.getElementById('scr-perks'),
   complete: document.getElementById('scr-complete'),
 };
@@ -1022,8 +1236,33 @@ function resumeGame() {
   touchWrap.classList.toggle('on', isTouch);
   if (MUS.el && SAVE.music) MUS.el.play().catch(() => {});
 }
+// Leaving a run returns you to wherever you started it, not always the main
+// level list. Testing a level drops you back into the editor with it intact.
+function exitRun() {
+  if (run.mode === 'custom') {
+    if (run.from === 'editor' && ED.lv) {
+      state = 'editor'; show('editor');
+      edSyncTime(); buildTools(); edHint();
+      playMusic('menu', false);
+      return;
+    }
+    if (run.from === 'search') {
+      state = 'search'; show('search'); buildSearch();
+      playMusic('menu', false);
+      return;
+    }
+    state = 'mylevels'; show('mylevels'); buildMyLevels();
+    playMusic('menu', false);
+    return;
+  }
+  if (run.mode === 'endless') { toOnline(); playMusic('menu', false); return; }
+  if (run.mode === 'daily')   { openDaily(); playMusic('menu', false); return; }
+  toMenu();
+}
+
 function restartRun() {
   if (run.mode === 'endless') startEndless();
+  else if (run.mode === 'custom') startCustom(run.customLv, run.from);
   else if (run.mode === 'daily') startDaily();
   else startLevel(run.idx, run.mode);
 }
@@ -1037,6 +1276,7 @@ function toMenu() {
 function toHome() {
   state = 'home';
   show('home');
+  updateInstallUI();
 
   playMusic('menu', false);
 }
@@ -1367,6 +1607,728 @@ function buildDevRoom() {
   box.appendChild(row);
 }
 
+/* ============================================================
+   LEVEL EDITOR
+   The chart runs left-to-right across the playfield and top-to-bottom
+   through time. You place every object; nothing is generated.
+   ============================================================ */
+/* Five tools. Anything with a flavour (which way a saw swings, which side a
+   spike comes from, which speed a portal sets) is changed after placing it,
+   from the panel under the level - so there is only ever one row to scan. */
+const ED_TOOLS = [
+  { k:'cop',  name:'COPTER', col:'#ff2bd0' },
+  { k:'spk',  name:'SPIKE',  col:'#8fe4ff' },
+  { k:'coin', name:'COIN',   col:'#ffd23f' },
+  { k:'saw',  name:'SAW',    col:'#dfe9f5' },
+  { k:'prt',  name:'SPEED',  col:'#7cff9b' },
+];
+const ED = { lv:null, tool:'cop', T:0, sel:-1, tier:2, side:-1, undo:[] };
+
+function blankLevel() {
+  return { id:null, name:'', secs:30, obj:[],
+           sw:['#3ac9ff','#ffffff'], bg:'#2f74c0', gr:'#1b4f8f', music:'lvl1' };
+}
+function newId() {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let o = '';
+  for (let i = 0; i < 5; i++) o += A[(Math.random() * A.length) | 0];
+  return o;
+}
+function myLevels() {
+  if (!Array.isArray(SAVE.levels)) SAVE.levels = [];
+  return SAVE.levels;
+}
+
+/* Draw one of the game's icons onto any canvas context. */
+function blit(g, icon, cx, cy, scale, rot) {
+  if (!icon) return false;
+  const w = icon.w * (scale || 1), h = icon.h * (scale || 1);
+  g.save();
+  g.translate(cx, cy);
+  if (rot) g.rotate(rot);
+  g.drawImage(icon.cv, -w/2, -h/2, w, h);
+  g.restore();
+  return true;
+}
+// the sprite that represents an object, so the editor shows the real thing
+function objIcon(o) {
+  if (o.k === 'cop')  return { ic:ART.icon.swing, sc:1, rot:Math.PI/2 };
+  if (o.k === 'coin') return { ic:(ART.icon.coin || [])[0], sc:0.9, rot:0 };
+  if (o.k === 'spk' || o.k === 'mspk') return { ic:ART.icon.spike, sc:1, rot:0 };
+  if (o.k === 'saw')  return { ic:ART.icon.saw, sc:1, rot:0 };
+  if (o.k === 'prt')  return { ic:ART.icon['boost' + ((o.n || 2) + 1)], sc:0.9, rot:0 };
+  return { ic:null, sc:1, rot:0 };
+}
+
+/* ---- the editor shows the playfield at the scrubbed moment ---- */
+const edCv = document.getElementById('edCanvas');
+const ED_FALL = { cop:190, coin:175 };
+
+function edView() {                       // playfield -> canvas mapping
+  const r = edCv.getBoundingClientRect();
+  const strip = 44;
+  const hh = Math.max(r.height - strip, 40);
+  const sc = Math.min(r.width / W, hh / H);
+  return { w:r.width, h:r.height, strip, sc,
+           ox:(r.width - W*sc)/2, oy:(hh - H*sc)/2 };
+}
+const snapT = t => Math.round(t * 10) / 10;
+const snapX = x => Math.round(x / 10) * 10;
+
+// where an object is at time T, or null if it is not on screen then
+function edWhere(o, T) {
+  const dt = T - o.t;
+  if (o.k === 'cop' || o.k === 'coin') {
+    if (dt < 0) return null;
+    const y = -30 + dt * ED_FALL[o.k];
+    return y > H + 30 ? null : { x:o.x, y };
+  }
+  if (o.k === 'spk') {
+    if (dt < 0) return null;
+    const v = (o.v || 260);
+    const x = o.s < 0 ? -30 + dt * v : W + 30 - dt * v;
+    return (x < -40 || x > W + 40) ? null : { x, y:GROUND_Y - 15 };
+  }
+  if (o.k === 'saw' || o.k === 'mspk') {
+    if (dt < 0) return null;
+    const life = o.dur === undefined ? 8 : o.dur;
+    if (life > 0 && dt > life) return null;                  // it has left by now
+    const off = Math.sin(dt * (o.v || 1) * Math.PI) * (o.r || 60);
+    if (o.a === 'h') return { x:clamp(o.x + off, 16, W-16), y:o.y };
+    const base = o.k === 'mspk' ? GROUND_Y - 15 : o.y;
+    return { x:o.x, y:base - Math.abs(off) };
+  }
+  if (o.k === 'prt') {
+    if (dt < 0) return null;
+    const x = W + 60 - dt * 3.2 * 60;
+    return x < -60 ? null : { x, y:GROUND_Y - 44 };
+  }
+  return null;
+}
+
+// The spot an object was placed at, so it can be shown even when the scrubber
+// is nowhere near its moment. Without this the level looks empty as you scroll.
+function edHome(o) {
+  if (o.k === 'cop' || o.k === 'coin') return { x:o.x, y:40 };
+  if (o.k === 'spk')  return { x:o.s < 0 ? 28 : W - 28, y:GROUND_Y - 15 };
+  if (o.k === 'prt')  return { x:W - 34, y:GROUND_Y - 44 };
+  if (o.k === 'mspk') return { x:o.x, y:GROUND_Y - 15 };
+  return { x:o.x, y:o.y };
+}
+
+function drawEditor() {
+  if (!ED.lv || state !== 'editor') return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const r = edCv.getBoundingClientRect();
+  const cw = Math.round(r.width * dpr), ch = Math.round(r.height * dpr);
+  if (edCv.width !== cw || edCv.height !== ch) { edCv.width = cw; edCv.height = ch; }
+  const g = edCv.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const V = edView();
+  const T = ED.T;
+
+  g.fillStyle = '#06111f';
+  g.fillRect(0, 0, V.w, V.h);
+
+  // the playfield, as the player will see it
+  g.save();
+  g.translate(V.ox, V.oy);
+  g.scale(V.sc, V.sc);
+  g.fillStyle = ED.lv.bg || '#2f74c0';
+  g.fillRect(0, 0, W, GROUND_Y);
+  g.fillStyle = ED.lv.gr || '#1b4f8f';
+  g.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+  g.fillStyle = '#dff6ff';
+  g.fillRect(0, GROUND_Y - 2, W, 3);
+  g.strokeStyle = 'rgba(255,255,255,.07)';
+  g.lineWidth = 1;
+  for (let x = 60; x < W; x += 60) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, GROUND_Y); g.stroke(); }
+
+  // the cube, so you can judge scale
+  g.fillStyle = 'rgba(58,201,255,.30)';
+  g.strokeStyle = '#3ac9ff'; g.lineWidth = 2;
+  g.fillRect(W/2 - 15, GROUND_Y - 30, 30, 30);
+  g.strokeRect(W/2 - 15, GROUND_Y - 30, 30, 30);
+
+  // every object shows where it sits, faded, at all times - and solid when the
+  // scrubber reaches its moment
+  ED.lv.obj.forEach((o, i) => {
+    const sel = i === ED.sel;
+    const live = edWhere(o, T);
+    const home = edHome(o);
+    const ic = objIcon(o);
+    const tool = ED_TOOLS.find(t => t.k === o.k) || ED_TOOLS[0];
+
+    if (!live || Math.hypot(live.x - home.x, live.y - home.y) > 8) {
+      g.globalAlpha = sel ? 0.55 : 0.26;               // the placed spot
+      if (!blit(g, ic.ic, home.x, home.y, ic.sc * 0.85, ic.rot)) {
+        g.fillStyle = tool.col;
+        g.beginPath(); g.arc(home.x, home.y, 11, 0, 6.283); g.fill();
+      }
+      if (sel) {
+        g.strokeStyle = '#ffd23f'; g.lineWidth = 2; g.setLineDash([4, 4]);
+        g.beginPath(); g.arc(home.x, home.y, 22, 0, 6.283); g.stroke();
+        g.setLineDash([]);
+      }
+      g.globalAlpha = 1;
+    }
+
+    if (o.k === 'saw' || o.k === 'mspk') {             // the path it patrols
+      g.save();
+      g.globalAlpha = sel ? 0.7 : 0.3;
+      g.strokeStyle = sel ? '#ffd23f' : '#ffffff';
+      g.lineWidth = 2; g.setLineDash([5, 5]);
+      g.beginPath();
+      const rr = o.r || 60, base = o.k === 'mspk' ? GROUND_Y - 15 : o.y;
+      if (o.a === 'h') { g.moveTo(o.x - rr, base); g.lineTo(o.x + rr, base); }
+      else { g.moveTo(o.x, base); g.lineTo(o.x, base - rr); }
+      g.stroke();
+      g.restore();
+    }
+
+    if (live) {                                        // it is on screen right now
+      g.globalAlpha = 1;
+      if (!blit(g, ic.ic, live.x, live.y, ic.sc, ic.rot)) {
+        g.fillStyle = tool.col;
+        g.beginPath(); g.arc(live.x, live.y, 14, 0, 6.283); g.fill();
+      }
+      if (sel) {
+        g.strokeStyle = '#ffd23f'; g.lineWidth = 3;
+        g.beginPath(); g.arc(live.x, live.y, 26, 0, 6.283); g.stroke();
+      }
+    }
+
+    if (sel) {                                         // say what and when
+      const at = live || home;
+      g.globalAlpha = 1;
+      g.font = '700 13px "Helvetica Neue",Arial,sans-serif';
+      g.textAlign = 'center';
+      g.lineWidth = 4; g.strokeStyle = '#06111f';
+      g.strokeText(tool.name + '  ' + o.t.toFixed(1) + 's', at.x, at.y - 32);
+      g.fillStyle = '#ffd23f';
+      g.fillText(tool.name + '  ' + o.t.toFixed(1) + 's', at.x, at.y - 32);
+      g.textAlign = 'left';
+    }
+  });
+  g.restore();
+
+  // timeline strip: every object as a tick, plus where you are
+  const sy = V.h - V.strip + 6, sh = 26;
+  g.fillStyle = '#0b2036';
+  g.fillRect(8, sy, V.w - 16, sh);
+  g.strokeStyle = '#1d5a92'; g.lineWidth = 1;
+  g.strokeRect(8, sy, V.w - 16, sh);
+  const tx = t => 8 + (clamp(t, 0, ED.lv.secs) / ED.lv.secs) * (V.w - 16);
+  g.font = '700 9px "Helvetica Neue",Arial,sans-serif';
+  const stepS = ED.lv.secs > 45 ? 10 : 5;
+  for (let t = 0; t <= ED.lv.secs; t += stepS) {       // second markers
+    g.strokeStyle = 'rgba(120,200,255,.30)';
+    g.beginPath(); g.moveTo(tx(t), sy); g.lineTo(tx(t), sy + sh); g.stroke();
+    g.fillStyle = '#6fa8cc';
+    g.fillText(t + 's', tx(t) + 3, sy + sh - 3);
+  }
+  ED.lv.obj.forEach((o, i) => {
+    const tool = ED_TOOLS.find(t => t.k === o.k) || ED_TOOLS[0];
+    const sel = i === ED.sel;
+    g.fillStyle = sel ? '#ffd23f' : tool.col;
+    g.fillRect(tx(o.t) - (sel ? 2 : 1), sy + 3, sel ? 4 : 2, sh - 12);
+  });
+  g.fillStyle = '#ffffff';
+  g.fillRect(tx(T) - 1.5, sy - 4, 3, sh + 8);
+}
+
+function edPick(fx, fy) {
+  for (let i = ED.lv.obj.length - 1; i >= 0; i--) {
+    const o = ED.lv.obj[i];
+    const live = edWhere(o, ED.T), home = edHome(o);
+    if (live && Math.hypot(live.x - fx, live.y - fy) < 30) return i;
+    if (Math.hypot(home.x - fx, home.y - fy) < 30) return i;
+  }
+  return -1;
+}
+
+// snapshot before anything destructive, so a mistake is one key away from gone
+function edPush() {
+  if (!ED.lv) return;
+  ED.undo.push(JSON.stringify(ED.lv.obj));
+  if (ED.undo.length > 40) ED.undo.shift();
+}
+function edUndo() {
+  if (!ED.undo.length) { document.getElementById('edHint').textContent = 'Nothing left to undo'; return; }
+  ED.lv.obj = JSON.parse(ED.undo.pop());
+  ED.sel = -1;
+  edHint(); buildInspector();
+}
+
+function edPlace(x, t, y) {
+  edPush();
+  const k = ED.tool;
+  if (y === undefined) y = 330;
+  let o;
+  if (k === 'spk')       o = { t, k:'spk', s:-1, v:260 };
+  else if (k === 'prt')  o = { t, k:'prt', n:ED.tier };
+  else if (k === 'saw')  o = { t, k:'saw', x:snapX(x), y:clamp(Math.round(y), 60, GROUND_Y-20), a:'v', r:70, v:1.1, dur:8 };
+  else if (k === 'sawh') o = { t, k:'saw', x:snapX(x), y:clamp(Math.round(y), 60, GROUND_Y-20), a:'h', r:70, v:1.0, dur:8 };
+  else if (k === 'mspk') o = { t, k:'mspk', x:snapX(x), r:60, v:1.0, dur:8 };
+  else if (k === 'coin') o = { t, k:'coin', x:snapX(x) };
+  else                   o = { t, k:'cop', x:snapX(x) };
+  ED.lv.obj.push(o);
+  ED.lv.obj.sort((a, b) => a.t - b.t);
+  ED.sel = ED.lv.obj.indexOf(o);
+  edHint();
+  buildInspector();
+}
+
+function edHint() {
+  const n = ED.lv ? ED.lv.obj.length : 0;
+  const coins = ED.lv ? ED.lv.obj.filter(o => o.k === 'coin').length : 0;
+  document.getElementById('edHint').textContent =
+    n + ' objects  ·  ' + coins + '/3 coins  ·  arrows or the bar to scrub  ·  click to place  ·  ctrl+Z undoes';
+}
+
+function edSyncTime() {
+  const sl = document.getElementById('edTime');
+  sl.max = Math.round(ED.lv.secs * 10);
+  sl.value = Math.round(ED.T * 10);
+  document.getElementById('edTimeV').textContent = ED.T.toFixed(1) + 's';
+}
+function openEditor(lv) {
+  ED.lv = lv || blankLevel();
+  ED.T = 0; ED.sel = -1;
+  state = 'editor';
+  show('editor');
+  document.getElementById('edName').value = ED.lv.name || '';
+  const sc = document.getElementById('edSecs');
+  sc.value = ED.lv.secs;
+  document.getElementById('edSecsV').textContent = ED.lv.secs + 's';
+  edSyncTime();
+  rebuildLevelArt(ED.lv);        // preview uses this level's own colours
+  buildTools();
+  buildStyle();
+  buildInspector();
+  edHint();
+}
+
+// a small canvas showing an icon, used for every button in the editor
+function iconChip(icon, px, rot, fallback) {
+  const cv = document.createElement('canvas');
+  const d = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = px * d; cv.height = px * d;
+  cv.style.width = px + 'px'; cv.style.height = px + 'px';
+  const g = cv.getContext('2d');
+  g.scale(d, d);
+  if (icon) {
+    const sc = (px - 6) / Math.max(icon.w, icon.h);
+    blit(g, icon, px/2, px/2, sc, rot || 0);
+  } else {
+    g.fillStyle = fallback || '#8fe4ff';
+    g.beginPath(); g.arc(px/2, px/2, px/3, 0, 6.283); g.fill();
+  }
+  return cv;
+}
+function toolIcon(k) {
+  if (k === 'cop')  return { ic:ART.icon.swing, rot:Math.PI/2 };
+  if (k === 'coin') return { ic:(ART.icon.coin || [])[0], rot:0 };
+  if (k === 'spk' || k === 'mspk') return { ic:ART.icon.spike, rot:0 };
+  if (k === 'saw' || k === 'sawh') return { ic:ART.icon.saw, rot:0 };
+  if (k === 'prt')  return { ic:ART.icon['boost' + (ED.tier + 1)], rot:0 };
+  return { ic:null, rot:0 };
+}
+
+function buildTools() {
+  const box = document.getElementById('edTools');
+  box.innerHTML = '';
+  ED_TOOLS.forEach(t => {
+    const b = document.createElement('div');
+    b.className = 'tool' + (ED.tool === t.k ? ' on' : '');
+    const ti = toolIcon(t.k);
+    b.appendChild(iconChip(ti.ic, 34, ti.rot, t.col));
+    const lab = document.createElement('span');
+    lab.textContent = t.name;
+    b.appendChild(lab);
+    b.addEventListener('click', () => { ED.tool = t.k; buildTools(); buildStyle(); });
+    box.appendChild(b);
+  });
+}
+
+/* Background and song for the level you are making. */
+function songList() {
+  const m = window.CUSTOM_MUSIC || {};
+  return Object.keys(m).filter(k => k !== 'menu' && k !== 'daily' && k.indexOf('endless') !== 0);
+}
+function buildStyle() {
+  const box = document.getElementById('edStyle');
+  box.innerHTML = '';
+
+  const lab = t => { const d = document.createElement('div'); d.className = 'insp';
+                     d.innerHTML = '<span>' + t + '</span>'; return d; };
+
+  box.appendChild(lab('BACKGROUND'));
+  ENDLESS_THEMES.forEach(th => {
+    const b = document.createElement('div');
+    b.style.cssText = 'width:26px;height:26px;border-radius:7px;cursor:pointer;' +
+      'background:linear-gradient(' + th.bg + ',' + th.gr + ');border:2px solid ' +
+      (ED.lv.bg === th.bg ? '#ffd23f' : 'rgba(255,255,255,.25)');
+    b.title = th.n;
+    b.addEventListener('click', () => {
+      ED.lv.bg = th.bg; ED.lv.gr = th.gr; ED.lv.sw = th.sw.slice();
+      rebuildLevelArt(ED.lv); buildStyle();
+    });
+    box.appendChild(b);
+  });
+
+  const songs = songList();
+  const cur = Math.max(0, songs.indexOf(ED.lv.music));
+  const wrap = document.createElement('div');
+  wrap.className = 'insp';
+  const prev = document.createElement('button'); prev.textContent = '<';
+  const name = document.createElement('b');
+  name.style.minWidth = '120px';
+  name.textContent = songTitle(songs[cur]) || 'none';
+  const next = document.createElement('button'); next.textContent = '>';
+  const set = d => {
+    const i = (cur + d + songs.length) % songs.length;
+    ED.lv.music = songs[i];
+    buildStyle();
+    playMusic(ED.lv.music, true);        // hear it straight away
+  };
+  prev.addEventListener('click', () => set(-1));
+  next.addEventListener('click', () => set(1));
+  wrap.innerHTML = '<span>SONG</span>';
+  wrap.appendChild(prev); wrap.appendChild(name); wrap.appendChild(next);
+  box.appendChild(wrap);
+}
+
+/* Change whatever is selected without typing anything. */
+function buildInspector() {
+  const box = document.getElementById('edInspect');
+  const o = ED.sel >= 0 ? ED.lv.obj[ED.sel] : null;
+  if (!o) { box.style.display = 'none'; return; }
+  box.style.display = '';
+  box.innerHTML = '';
+  const oi = objIcon(o);
+  box.appendChild(iconChip(oi.ic, 30, oi.rot, '#8fe4ff'));
+
+  const field = (label, get, set, step, lo, hi, fmt) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'insp';
+    const l = document.createElement('span'); l.textContent = label;
+    const minus = document.createElement('button'); minus.textContent = '-';
+    const val = document.createElement('b');
+    const plus = document.createElement('button'); plus.textContent = '+';
+    const paint = () => { val.textContent = fmt ? fmt(get()) : get(); };
+    minus.addEventListener('click', () => { set(clamp(get() - step, lo, hi)); paint(); });
+    plus .addEventListener('click', () => { set(clamp(get() + step, lo, hi)); paint(); });
+    paint();
+    wrap.appendChild(l); wrap.appendChild(minus); wrap.appendChild(val); wrap.appendChild(plus);
+    box.appendChild(wrap);
+  };
+
+  field('TIME', () => o.t, v => { o.t = Math.round(v * 10) / 10; ED.lv.obj.sort((a,b)=>a.t-b.t);
+                                  ED.sel = ED.lv.obj.indexOf(o); }, 0.1, 0, ED.lv.secs,
+        v => v.toFixed(1) + 's');
+  if (o.k === 'prt')
+    field('SPEED', () => o.n || 2, v => { o.n = Math.round(v); buildInspector(); }, 1, 0, 4,
+          v => SPEED_LABEL[Math.round(v)]);
+  if (o.k === 'spk' || o.k === 'mspk') {
+    const swap = document.createElement('button');
+    swap.className = 'btn ghost';
+    swap.style.cssText = 'padding:5px 10px;font-size:11px';
+    swap.textContent = o.k === 'spk' ? 'Sliding' : 'Up/Down';
+    swap.addEventListener('click', () => {
+      if (o.k === 'spk') { o.k = 'mspk'; o.r = 60; o.v = 1; o.dur = 8; }
+      else { o.k = 'spk'; o.s = -1; o.v = 260; }
+      buildInspector();
+    });
+    box.appendChild(swap);
+  }
+  if (o.k === 'spk') {
+    field('FROM', () => o.s < 0 ? 0 : 1, v => { o.s = v < 0.5 ? -1 : 1; }, 1, 0, 1,
+          v => v < 0.5 ? 'LEFT' : 'RIGHT');
+    field('SPEED', () => o.v || 260, v => { o.v = Math.round(v); }, 20, 120, 460, v => v + '');
+  }
+  if (o.k === 'saw') {
+    const ax = document.createElement('button');
+    ax.className = 'btn ghost';
+    ax.style.cssText = 'padding:5px 10px;font-size:11px';
+    ax.textContent = o.a === 'h' ? 'Sideways' : 'Up/Down';
+    ax.addEventListener('click', () => { o.a = o.a === 'h' ? 'v' : 'h'; buildInspector(); });
+    box.appendChild(ax);
+  }
+  if (o.k === 'saw' || o.k === 'mspk') {
+    field('REACH', () => o.r || 60, v => { o.r = Math.round(v); }, 10, 20, 220, v => v + '');
+    field('SPEED', () => o.v || 1, v => { o.v = Math.round(v * 10) / 10; }, 0.1, 0.2, 3, v => v.toFixed(1));
+    field('LASTS', () => o.dur === undefined ? 8 : o.dur, v => { o.dur = Math.round(v * 10) / 10; },
+          0.5, 0.5, 60, v => v.toFixed(1) + 's');
+  }
+  const del = document.createElement('button');
+  del.className = 'btn ghost';
+  del.style.cssText = 'padding:5px 10px;font-size:11px';
+  del.textContent = 'Delete';
+  del.addEventListener('click', () => { edPush(); ED.lv.obj.splice(ED.sel, 1); ED.sel = -1; edHint(); buildInspector(); });
+  box.appendChild(del);
+}
+
+function edCollect() {
+  ED.lv.name = (document.getElementById('edName').value || 'Untitled').trim().slice(0, 24);
+  ED.lv.secs = parseInt(document.getElementById('edSecs').value, 10) || 30;
+  return ED.lv;
+}
+function edSave() {
+  const lv = edCollect();
+  if (!lv.id) lv.id = newId();
+  const list = myLevels();
+  const at = list.findIndex(x => x.id === lv.id);
+  const copy = JSON.parse(JSON.stringify(lv));
+  copy.made = copy.made || Date.now();
+  if (at >= 0) list[at] = copy; else list.push(copy);
+  store();
+  document.getElementById('edHint').textContent = 'Saved as ' + lv.id;
+}
+
+/* ============================================================
+   ACCOUNTS
+   No password and no email: the server issues a long random login code and
+   only stores a hash of it. Lose the code and the account is gone - that is
+   the trade for keeping nothing sensitive.
+   ============================================================ */
+function account() { return SAVE.account || null; }
+function signedIn() { return !!(account() && account().uid && account().token); }
+
+function apiPost(path, body) {
+  if (!LIKES_API) return Promise.reject(new Error('offline'));
+  return fetch(LIKES_API + path, {
+    method:'POST', headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify(body || {})
+  }).then(r => r.json().then(d => r.ok ? d : Promise.reject(new Error(d.error || 'failed'))));
+}
+function apiGet(path) {
+  if (!LIKES_API) return Promise.reject(new Error('offline'));
+  return fetch(LIKES_API + path).then(r => r.json());
+}
+function authBody(extra) {
+  const a = account() || {};
+  // the session token goes over the wire, never the password
+  return Object.assign({ uid:a.uid, token:a.token }, extra || {});
+}
+
+function buildAccount() {
+  const inBox = document.getElementById('accIn');
+  const outBox = document.getElementById('accOut');
+  const note = document.getElementById('accNote');
+  if (signedIn()) {
+    inBox.style.display = 'flex'; outBox.style.display = 'none';
+    document.getElementById('accWho').textContent = account().name;
+  } else {
+    inBox.style.display = 'none'; outBox.style.display = 'flex';
+  }
+  note.textContent = '';
+}
+let accFrom = 'online';
+function openAccount(from) {
+  accFrom = from || 'online';
+  state = 'account'; show('account'); buildAccount();
+}
+function accBack() {
+  if (accFrom === 'settings') { state = 'settings'; show('settings'); buildSettings(); }
+  else toOnline();
+}
+
+function accFields() {
+  return { name:(document.getElementById('accName').value || '').trim(),
+           password: document.getElementById('accPass').value || '' };
+}
+function accDone(d, note) {
+  SAVE.account = { uid:d.uid, name:d.name, token:d.token };   // password is not kept
+  store();
+  document.getElementById('accPass').value = '';
+  note.textContent = '';
+  buildAccount();
+  play('best'); buzz(25);
+}
+function accProblem(e, note) {
+  note.textContent = e.message === 'offline'
+    ? 'No server running - start it with:  node server/server.js 8790'
+    : e.message;
+}
+function accRegister() {
+  const { name, password } = accFields();
+  const note = document.getElementById('accNote');
+  if (name.length < 3) { note.textContent = 'Username needs at least 3 characters'; return; }
+  if (password.length < 6) { note.textContent = 'Password needs at least 6 characters'; return; }
+  note.textContent = 'Creating...';
+  apiPost('/register', { name, password }).then(d => accDone(d, note)).catch(e => accProblem(e, note));
+}
+function accSignIn() {
+  const { name, password } = accFields();
+  const note = document.getElementById('accNote');
+  if (!name || !password) { note.textContent = 'Type your username and password'; return; }
+  note.textContent = 'Checking...';
+  apiPost('/login', { name, password }).then(d => accDone(d, note)).catch(e => accProblem(e, note));
+}
+function accSignOut() { SAVE.account = null; store(); buildAccount(); }
+
+function publishLevel(l, done) {
+  if (!signedIn()) { openAccount('settings');
+    document.getElementById('accNote').textContent = 'Make an account to publish levels'; return; }
+  apiPost('/publish', authBody({ level:l }))
+    .then(d => { achievement('PUBLISHED', d.name + '  ' + d.id, undefined); if (done) done(); })
+    .catch(e => { achievement('COULD NOT PUBLISH', e.message === 'offline' ? 'no server' : e.message, undefined); });
+}
+
+/* ---- level rows, shared by My Levels and Search ---- */
+function levelRow(l, opts) {
+  const row = document.createElement('div');
+  row.className = 'lvRow';
+  const st = levelStats(l.id);
+  row.innerHTML =
+    '<div class="ln">' + (l.name || 'Untitled') +
+    '<div class="li">' + l.id + '  &middot;  ' + (l.obj || []).length + ' objects  &middot;  ' +
+    l.secs + 's  &middot;  ' + st.plays + ' plays  &middot;  ' + st.likes + ' likes</div></div>';
+  const mk = (label, fn) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.addEventListener('click', fn);
+    return b;
+  };
+  row.appendChild(mk('Play', () => { bumpPlay(l.id); startCustom(JSON.parse(JSON.stringify(l))); }));
+  if (opts.edit) row.appendChild(mk(opts.publish ? 'Publish' : 'Edit',
+      opts.publish ? () => publishLevel(l, opts.refresh)
+                   : () => openEditor(JSON.parse(JSON.stringify(l)))));
+  else row.appendChild(mk('Like', () => { likeLevel(l.id); opts.refresh(); }));
+  row.appendChild(mk(opts.edit ? 'Delete' : 'Copy', () => {
+    if (opts.edit) { SAVE.levels = myLevels().filter(x => x.id !== l.id); store(); }
+    opts.refresh();
+  }));
+  return row;
+}
+function emptyRow(msg) {
+  const e = document.createElement('div');
+  e.className = 'lvRow';
+  e.innerHTML = '<div class="ln">' + msg + '</div><div></div><div></div><div></div>';
+  return e;
+}
+
+/* Plays and likes. Local until a server is configured - see server/README.md. */
+function levelStats(id) {
+  if (!SAVE.lstats) SAVE.lstats = {};
+  return SAVE.lstats[id] || { plays:0, likes:0, liked:false };
+}
+function bumpPlay(id) {
+  if (!SAVE.lstats) SAVE.lstats = {};
+  const s2 = levelStats(id);
+  SAVE.lstats[id] = { plays:s2.plays + 1, likes:s2.likes, liked:s2.liked };
+  store();
+}
+function likeLevel(id) {
+  if (!SAVE.lstats) SAVE.lstats = {};
+  const s2 = levelStats(id);
+  if (s2.liked) return;
+  SAVE.lstats[id] = { plays:s2.plays, likes:s2.likes + 1, liked:true };
+  store();
+  play('best'); buzz(20);
+}
+
+function buildMyLevels() {
+  const note = document.getElementById('lvPubNote');
+  if (note) note.textContent = signedIn()
+    ? 'Signed in as ' + account().name + ' - your levels can be published'
+    : 'Sign in (Settings > Account) to publish levels so others can play them';
+  const box = document.getElementById('lvList');
+  box.innerHTML = '';
+  const list = myLevels();
+  if (!list.length) { box.appendChild(emptyRow('No levels yet - hit New Level')); return; }
+  list.forEach(l => box.appendChild(levelRow(l, { edit:true, refresh:buildMyLevels })));
+}
+
+/* Search asks the server, so it finds everybody's published levels, not just
+   the ones sitting on this machine. */
+function buildSearch() {
+  const box = document.getElementById('sqList');
+  const note = document.getElementById('sqNote');
+  const q = (document.getElementById('sqInput').value || '').trim();
+  box.innerHTML = '';
+
+  if (!LIKES_API) {
+    note.textContent = 'No server running - only your own levels are searchable';
+    const local = myLevels().filter(l => !q ||
+      (l.name || '').toUpperCase().indexOf(q.toUpperCase()) >= 0 ||
+      (l.id || '').toUpperCase().indexOf(q.toUpperCase()) >= 0);
+    if (!local.length) box.appendChild(emptyRow(q ? 'Nothing matches "' + q + '"' : 'Your levels appear here'));
+    else local.forEach(l => box.appendChild(levelRow(l, { edit:false, refresh:buildSearch })));
+    return;
+  }
+
+  note.textContent = 'Searching...';
+  box.appendChild(emptyRow('Looking through published levels...'));
+  apiGet('/levels?q=' + encodeURIComponent(q))
+    .then(d => {
+      box.innerHTML = '';
+      const list = (d && d.levels) || [];
+      note.textContent = list.length
+        ? list.length + ' published level' + (list.length === 1 ? '' : 's') + ' - search by name, id or author'
+        : '';
+      if (!list.length) {
+        box.appendChild(emptyRow(q ? 'Nobody has published anything matching "' + q + '"'
+                                   : 'No levels published yet - be the first'));
+        return;
+      }
+      list.forEach(meta2 => box.appendChild(onlineRow(meta2)));
+    })
+    .catch(() => {
+      box.innerHTML = '';
+      note.textContent = 'Could not reach the server';
+      box.appendChild(emptyRow('Server not responding - start it with: node server/server.js 8790'));
+    });
+}
+
+/* A published level: fetched on demand, since the list only carries a summary. */
+function onlineRow(m) {
+  const row = document.createElement('div');
+  row.className = 'lvRow';
+  row.innerHTML =
+    '<div class="ln">' + m.name +
+    '<div class="li">' + m.id + '  &middot;  by ' + m.author + '  &middot;  ' +
+    m.objects + ' objects  &middot;  ' + m.plays + ' plays  &middot;  ' + m.likes + ' likes</div></div>';
+  const mk = (label, fn) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.addEventListener('click', fn);
+    return b;
+  };
+  row.appendChild(mk('Play', () => {
+    apiGet('/level?id=' + encodeURIComponent(m.id) +
+           '&uid=' + encodeURIComponent((account() || {}).uid || ''))
+      .then(d => {
+        if (!d || !d.level) throw new Error('missing');
+        apiPost('/play', { level:m.id }).catch(() => {});
+        startCustom(d.level, 'search');
+      })
+      .catch(() => achievement('COULD NOT LOAD', m.name, undefined));
+  }));
+  row.appendChild(mk('Like', () => {
+    if (!signedIn()) { openAccount('settings');
+      document.getElementById('accNote').textContent = 'Sign in to like levels'; return; }
+    apiPost('/like', authBody({ level:m.id }))
+      .then(() => { achievement('LIKED', m.name, undefined); buildSearch(); })
+      .catch(e => achievement('COULD NOT LIKE', e.message, undefined));
+  }));
+  row.appendChild(mk('Save', () => {
+    apiGet('/level?id=' + encodeURIComponent(m.id))
+      .then(d => {
+        if (!d || !d.level) throw new Error('missing');
+        const copy = JSON.parse(JSON.stringify(d.level));
+        copy.id = null;
+        copy.name = (copy.name || 'Level') + ' (copy)';
+        myLevels().push(Object.assign(copy, { id:newId(), made:Date.now() }));
+        store();
+        achievement('SAVED TO MY LEVELS', copy.name, undefined);
+      })
+      .catch(() => achievement('COULD NOT SAVE', m.name, undefined));
+  }));
+  return row;
+}
+
 /* ---------- perk draft ---------- */
 function offerPerks() {
   const pool = PERKS.filter(p => (run.perks[p.key] || 0) < p.max);
@@ -1431,7 +2393,7 @@ function buildChest() {
     act.style.display = 'none';
     showLoot();
   }
-  const btn = document.getElementById('homeChest');
+  const btn = document.getElementById('onChest');
   if (btn) btn.classList.toggle('ready', st !== 'opened');
 }
 function showLoot() {
@@ -1459,11 +2421,8 @@ function openChest() {
   if (fresh) achievement('CHEST OPENED', CHANNEL_NAME, CHANNEL_CUBE);
 }
 function wireChest() {
-  const home = document.getElementById('homeChest');
-  if (!CHANNEL_URL) { home.style.display = 'none'; return; }
-  home.addEventListener('click', () => {
-    state = 'chest'; show('chest'); buildChest(); play('chestClick');
-  });
+  const home = document.getElementById('onChest');
+  if (!CHANNEL_URL) { if (home) home.style.display = 'none'; return; }
   document.getElementById('chestBack').addEventListener('click', toHome);
   document.getElementById('chestAction').addEventListener('click', () => {
     if (chestState() === 'locked') {
@@ -1491,6 +2450,11 @@ function buildSettings() {
   const fb = document.getElementById('setFx');
   hb.textContent = SAVE.haptics === false ? 'OFF' : 'ON';
   fb.textContent = SAVE.fx === false ? 'OFF' : 'ON';
+  const who = document.getElementById('setAccWho');
+  if (who) {
+    who.textContent = signedIn() ? account().name : 'none';
+    who.style.color = signedIn() ? '#7cff9b' : '#7fb6d6';
+  }
 }
 function wireSettings() {
   const mv = document.getElementById('setMusic');
@@ -1512,6 +2476,7 @@ function wireSettings() {
     SAVE.fx = SAVE.fx === false; store(); buildSettings();
   });
   document.getElementById('setBack').addEventListener('click', toHome);
+  document.getElementById('setAccount').addEventListener('click', () => openAccount('settings'));
   document.getElementById('homeSettings').addEventListener('click', () => {
     state = 'settings'; show('settings'); buildSettings();
   });
@@ -1627,11 +2592,38 @@ function buildIconKit() {
 
 function openIcons() { state = 'icons'; show('icons'); buildIconKit(); }
 document.getElementById('homePlay').addEventListener('click', toMenu);
+function toOnline() { state = 'online'; show('online'); }
+document.getElementById('homeOnline').addEventListener('click', toOnline);
+document.getElementById('onBack').addEventListener('click', toHome);
+document.getElementById('accBack').addEventListener('click', accBack);
+document.getElementById('accMake').addEventListener('click', accRegister);
+document.getElementById('accLogin').addEventListener('click', accSignIn);
+document.getElementById('accOut2').addEventListener('click', accSignOut);
+document.getElementById('onCreate').addEventListener('click', () => {
+  // building is always free - an account is only needed to publish or like,
+  // so a missing server can never lock you out of your own editor
+  state = 'mylevels'; show('mylevels'); buildMyLevels();
+});
+document.getElementById('onSearch').addEventListener('click', () => {
+  state = 'search'; show('search'); buildSearch();
+});
+document.getElementById('onDaily').addEventListener('click', openDaily);
+document.getElementById('onEndless').addEventListener('click', startEndless);
+document.getElementById('onBoss').addEventListener('click', () => { toMenu(); });
+document.getElementById('onRecords').addEventListener('click', toRecords);
+document.getElementById('onChest').addEventListener('click', () => {
+  state = 'chest'; show('chest'); buildChest(); play('chestClick');
+});
 document.getElementById('homeIcons').addEventListener('click', openIcons);
 document.getElementById('pauResume').addEventListener('click', resumeGame);
 document.getElementById('pauRestart').addEventListener('click', restartRun);
-document.getElementById('pauExit').addEventListener('click', toMenu);
+document.getElementById('pauExit').addEventListener('click', exitRun);
 document.getElementById('pauseBtn').addEventListener('click', pauseGame);
+document.getElementById('homeInstall').addEventListener('click', () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  installPrompt.userChoice.finally(() => { installPrompt = null; updateInstallUI(); });
+});
 document.getElementById('homeCredits').addEventListener('click', () => {
   state = 'credits'; show('credits'); buildCredits();
 });
@@ -1647,8 +2639,99 @@ document.getElementById('vaultInput').addEventListener('keydown', e => {
   if (e.code === 'Enter') { e.preventDefault(); submitCode(); }
   e.stopPropagation();
 });
-document.getElementById('homeEndless').addEventListener('click', startEndless);
-document.getElementById('homeDaily').addEventListener('click', openDaily);
+document.getElementById('lvBack').addEventListener('click', toOnline);
+document.getElementById('lvNew').addEventListener('click', () => openEditor(null));
+document.getElementById('sqBack').addEventListener('click', toOnline);
+document.getElementById('sqGo').addEventListener('click', buildSearch);
+document.getElementById('sqInput').addEventListener('input', buildSearch);
+
+/* ---- editor controls ---- */
+document.getElementById('edBack').addEventListener('click', () => {
+  edSave();                                  // never lose work on the way out
+  state = 'mylevels'; show('mylevels'); buildMyLevels();
+});
+document.getElementById('edSave').addEventListener('click', edSave);
+document.getElementById('edUndo').addEventListener('click', edUndo);
+document.getElementById('edTest').addEventListener('click', () => {
+  edSave();                                   // never lose the level to a test run
+  startCustom(JSON.parse(JSON.stringify(edCollect())), 'editor');
+});
+document.getElementById('edClear').addEventListener('click', () => {
+  edPush(); ED.lv.obj = []; ED.sel = -1; edHint(); buildInspector();
+});
+document.getElementById('edDel').addEventListener('click', () => {
+  if (ED.sel >= 0) { edPush(); ED.lv.obj.splice(ED.sel, 1); ED.sel = -1; edHint(); buildInspector(); }
+});
+document.getElementById('edSecs').addEventListener('input', e => {
+  ED.lv.secs = parseInt(e.target.value, 10);
+  document.getElementById('edSecsV').textContent = ED.lv.secs + 's';
+  ED.T = Math.min(ED.T, ED.lv.secs);
+  edSyncTime();
+});
+
+(function wireChart() {
+  const cv = document.getElementById('edCanvas');
+  const slider = document.getElementById('edTime');
+  let mode = null, dragObj = null;
+
+  const at = e => {
+    const r = cv.getBoundingClientRect();
+    return { px: e.clientX - r.left, py: e.clientY - r.top };
+  };
+  const toField = (px, py) => {
+    const V = edView();
+    return { x: (px - V.ox) / V.sc, y: (py - V.oy) / V.sc };
+  };
+  const inStrip = py => { const V = edView(); return py > V.h - V.strip; };
+  const scrubTo = px => {
+    const V = edView();
+    ED.T = snapT(clamp((px - 8) / (V.w - 16), 0, 1) * ED.lv.secs);
+    edSyncTime();
+  };
+
+  slider.addEventListener('input', () => {
+    ED.T = parseInt(slider.value, 10) / 10;
+    document.getElementById('edTimeV').textContent = ED.T.toFixed(1) + 's';
+  });
+
+  cv.addEventListener('pointerdown', e => {
+    if (!ED.lv) return;
+    e.preventDefault();
+    cv.setPointerCapture(e.pointerId);
+    const { px, py } = at(e);
+    if (inStrip(py)) { mode = 'scrub'; scrubTo(px); return; }
+    const f = toField(px, py);
+    const hit = edPick(f.x, f.y);
+    if (hit >= 0) { edPush(); ED.sel = hit; dragObj = ED.lv.obj[hit]; buildInspector(); }
+    else {
+      edPlace(clamp(f.x, 10, W - 10), ED.T, f.y);
+      dragObj = ED.lv.obj[ED.sel];
+    }
+    mode = 'move';
+  });
+
+  cv.addEventListener('pointermove', e => {
+    if (!ED.lv || !mode) return;
+    const { px, py } = at(e);
+    if (mode === 'scrub') { scrubTo(px); return; }
+    if (!dragObj) return;
+    const f = toField(px, py);
+    if (dragObj.k === 'spk') dragObj.s = f.x < W/2 ? -1 : 1;
+    else if (dragObj.k !== 'prt') dragObj.x = snapX(clamp(f.x, 10, W - 10));
+    if (dragObj.k === 'saw') dragObj.y = clamp(Math.round(f.y), 60, GROUND_Y - 20);
+  });
+
+  const stop = () => { mode = null; dragObj = null; };
+  cv.addEventListener('pointerup', stop);
+  cv.addEventListener('pointercancel', stop);
+
+  cv.addEventListener('wheel', e => {
+    if (!ED.lv) return;
+    e.preventDefault();
+    ED.T = clamp(snapT(ED.T + e.deltaY * 0.004), 0, ED.lv.secs);
+    edSyncTime();
+  }, { passive:false });
+})();
 document.getElementById('dailyPlay').addEventListener('click', () => { reportPlay(); startDaily(); });
 document.getElementById('dailyLike').addEventListener('click', likeDaily);
 document.getElementById('dailyBack2').addEventListener('click', toHome);
@@ -1660,7 +2743,6 @@ ptog.addEventListener('click', () => {
   ptog.style.background = practiceMode ? 'linear-gradient(#7cff9b,#2fa85c)' : '';
   ptog.style.color = practiceMode ? '#06111f' : '';
 });
-document.getElementById('homeBoard').addEventListener('click', toRecords);
 document.getElementById('lvlBack').addEventListener('click', toHome);
 document.getElementById('recBack').addEventListener('click', toHome);
 document.getElementById('iconsBack').addEventListener('click', toHome);
@@ -1717,6 +2799,7 @@ function setStatLabels(a, b, c) {
 // functions used to each keep their own copy of this and they drifted apart.
 function resetRunState() {
   boss = null;
+  saws = []; run.objI = 0;
   run.inBoss = false; run.bossT = 0; run.bossMin = 0;
   run.fx = { shield:0, slow:0, magnet:0, djump:0 };
   run.inv = 0;
@@ -1732,6 +2815,7 @@ function resetRunState() {
   drops = []; portals = [];
   speedFx = null;
   bossFx = 0;
+  punch = 0;
 }
 
 /* Endless picks a fresh look every attempt. Colours and music change; the
@@ -1824,6 +2908,31 @@ function updateBossPhase() {
       player.y + player.size > boss.y) die();
 }
 
+function startCustom(lv, from) {
+  run.idx = -4; run.mode = 'custom'; run.endless = false;
+  run.customLv = lv;
+  run.from = from || 'list';
+  const L = run.L = Object.assign({
+    n:'Untitled', diff:0, secs:30, music:'lvl1', seed:1, spd:[],
+    sw:['#3ac9ff','#ffffff'], bg:'#2f74c0', gr:'#1b4f8f',
+    cop:[9,9], fall:[150,150], spk:[9,9], sspd:[250,250], burst:0, coins:[]
+  }, lv);
+  run.att = 1; run.t = 0; run.coins = [false,false,false]; run.coinI = 0;
+  run.spawnT = 1e9; run.spikeT = 1e9; run.bestMark = 0;
+  run.score = 0; run.ecoins = 0;
+  seed = L.seed || 1;
+  resetRunState();
+  copters = []; spikes = []; pickups = []; parts = []; warnings = []; pops = [];
+  shake = 0; flash = 0; deathTimer = 0;
+  player.x = W/2 - 15; player.y = GROUND_Y - player.size;
+  player.vx = 0; player.vy = 0; player.onGround = true;
+  player.rot = 0; player.spinDir = 1; player.dead = false; player.trail = [];
+  rebuildLevelArt(L);
+  state = 'play'; show(null);
+  touchWrap.classList.toggle('on', isTouch);
+  playMusic(L.music, true);
+}
+
 function endlessCfg() {
   let i = (Math.random() * ENDLESS_THEMES.length) | 0;
   if (ENDLESS_THEMES.length > 1 && i === lastTheme)       // never the same twice running
@@ -1877,7 +2986,10 @@ function dailyCfg() {
    Deploy server/worker.js (see server/README.md) and paste the URL here.
    Empty = no server, and the panel says so rather than inventing numbers.
    ============================================================ */
-const LIKES_API = '';
+const LIKES_API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+                   || location.protocol === 'file:')
+  ? 'http://localhost:8790'      // the local server: node server/server.js 8790
+  : '';                          // paste your deployed Worker URL here to go public
 
 function deviceId() {
   let id = null;
@@ -2044,9 +3156,10 @@ function die() {
   deathTimer = run.mode === 'practice' ? 0.45 : 0.8;
   run.restore = run.mode === 'practice' && run.cps.length > 0;
   shake = 22; flash = 1;
+  punch = Math.max(punch, 0.05);
   play('death');
   buzz(55);
-  if (run.mode === 'endless') return;
+  if (run.mode === 'endless' || run.mode === 'custom') return;
   if (run.mode === 'daily') {
     const pct = run.t / run.L.secs * 100;
     if (SAVE.daily.date !== todayKey()) SAVE.daily = { date:todayKey(), done:false, streak:SAVE.daily.streak||0, best:0 };
@@ -2114,6 +3227,22 @@ function completeLevel() {
     if (first) { play('best'); buzz([40,60,40]); }
     document.getElementById('cmpHint').textContent = 'Come back tomorrow for a new one';
   document.getElementById('cmpPrize').innerHTML = '';
+    document.getElementById('cmpNext').disabled = true;
+    show('complete');
+    stopMusic(); playMusic('menu', true);
+    return;
+  }
+
+  if (run.mode === 'custom') {                  // a made level: no records, no prizes
+    setStatLabels('OBJECTS', 'TIME', 'COINS');
+    document.getElementById('cmpName').textContent = run.L.n || 'Untitled';
+    document.getElementById('cmpAtt').textContent = (run.L.obj || []).length;
+    document.getElementById('cmpTime').textContent = Math.round(run.L.secs) + 's';
+    document.getElementById('cmpCoinN').textContent = run.coins.filter(Boolean).length + '/3';
+    document.getElementById('cmpCoins').innerHTML = '';
+    document.getElementById('cmpPrize').innerHTML = '';
+    document.getElementById('cmpBest').style.display = 'none';
+    document.getElementById('cmpHint').textContent = 'Level complete';
     document.getElementById('cmpNext').disabled = true;
     show('complete');
     stopMusic(); playMusic('menu', true);
@@ -2189,9 +3318,10 @@ function completeLevel() {
   playMusic('menu', true);
 }
 
-document.getElementById('cmpMenu').addEventListener('click', toMenu);
+document.getElementById('cmpMenu').addEventListener('click', exitRun);
 document.getElementById('cmpReplay').addEventListener('click', () => {
   if (run.mode === 'endless') startEndless();
+  else if (run.mode === 'custom') startCustom(run.customLv, run.from);
   else if (run.mode === 'daily') startDaily();
   else startLevel(run.idx, run.mode);
 });
@@ -2258,6 +3388,7 @@ function updatePortals() {
       speedFx = { label: SPEED_LABEL[p.tier], up, t:1.5 };
       flash = Math.max(flash, 0.55);
       shake = Math.max(shake, 9);
+      punch = Math.max(punch, 0.032);
       buzz(up ? [25, 40, 25] : 20);
     }
     if (p.x < -90) portals.splice(i, 1);
@@ -2364,6 +3495,7 @@ function step() {
       if (run.restore) restoreCheckpoint();               // practice: back to the flag
       else if (run.mode === 'endless') { endRun(); return; }
       else if (run.mode === 'daily') startDaily();
+      else if (run.mode === 'custom') startCustom(run.customLv, run.from);
       else startLevel(run.idx, run.mode);                 // GD drops you straight back in
     }
   }
@@ -2453,10 +3585,16 @@ function step() {
     if (player.trail.length > 12) player.trail.shift();
 
     if (run.inBoss) updateBossPhase();        // after you move, so hits are fair
+    updateSaws();
 
     /* ---- spawns ---- */
     const L = run.L, d = prog();
-    if (run.inBoss) { /* the boss supplies the hazards now */ }
+    if (L.obj) {                               // a hand-built level: play the list
+      while (run.objI < L.obj.length && run.t >= L.obj[run.objI].t) {
+        spawnObject(L.obj[run.objI]); run.objI++;
+      }
+    }
+    else if (run.inBoss) { /* the boss supplies the hazards now */ }
     else {
     run.spawnT -= STEP;
     if (run.spawnT <= 0) {
@@ -2533,6 +3671,7 @@ function step() {
     }
     if (state === 'play' && circleHitsBox(p.x + Math.sin(p.sway)*6, p.y, p.r+4, pb)) {
       if (run.endless) run.ecoins += coinMul(); else run.coins[p.idx] = true;
+      punch = Math.max(punch, 0.018);
       buzz(12);
       play('coin');
       burst(p.x, p.y, 18, ['#ffd23f','#fff6c9','#ffffff','#ff9f1c'], 7, { min:2, max:6, grav:0.1 });
@@ -2555,7 +3694,7 @@ function step() {
     if (state === 'play' && circleHitsBox(dp.x, dp.y, dp.r + 4, pb)) {
       const P = POWER_BY[dp.key];
       if (P.dur) run.fx[dp.key] = P.dur; else run.fx[dp.key] = 1;
-      play('coin'); buzz(18);
+      play('coin'); buzz(18); punch = Math.max(punch, 0.012);
       burst(dp.x, dp.y, 16, [P.col, '#ffffff'], 7, { min:2, max:6, grav:0.1 });
       pops.push({ x:dp.x, y:dp.y, life:1, txt:P.name, col:P.col });
       drops.splice(i, 1);
@@ -2609,12 +3748,12 @@ function drawBackground() {
   ctx.fillRect(-offX-10, -offY-10, viewW+20, viewH+20);
   const bg = ART.icon.bg;
   if (bg) {
-    // the GD bg tile carries its own shading, so it is scaled to the view
-    // height and scrolled sideways only - tiling it vertically would band
+    // one steady layer, scrolled sideways. A second parallax layer and a
+    // beat-driven zoom looked like the whole screen was swimming.
     const th = viewH + 8, tw = bg.w * (th / bg.h);
     const ox = -((scroll * 0.35) % tw);
     for (let x = ox - offX - tw; x < viewW - offX + tw; x += tw)
-      ctx.drawImage(bg.cv, x, -offY-4, tw, th);
+      ctx.drawImage(bg.cv, x, -offY - 4, tw, th);
   } else {
     const g = ctx.createLinearGradient(0, -offY, 0, viewH);
     g.addColorStop(0, L.bg); g.addColorStop(1, '#061428');
@@ -2639,9 +3778,10 @@ function drawFloor() {
   }
   const fl = ART.icon.floorline;
   if (fl) {
-    const fh = Math.max(fl.h, 2.5);
+    const fh = Math.max(fl.h, 2.5) * (1 + pulse * 0.9);
     ctx.save();
-    ctx.shadowColor = 'rgba(150,235,255,.9)'; ctx.shadowBlur = 14;
+    ctx.shadowColor = 'rgba(150,235,255,.9)';
+    ctx.shadowBlur = 14 + pulse * 26;
     for (let x = -offX; x < viewW - offX; x += fl.w)
       ctx.drawImage(fl.cv, x, GROUND_Y - fh/2, fl.w, fh);
     ctx.restore();
@@ -2890,6 +4030,36 @@ function drawBossHUD() {
   gdText(run.mode === 'practice' ? 'PRACTICE' : ('ATTEMPT ' + run.att), 12, 10, 14, '#cfeaff');
 }
 
+function drawSaw(s) {
+  ctx.globalAlpha = s.fade === undefined ? 1 : s.fade;
+  if (s.spike) {                              // a spike riding up and down
+    const a = ART.icon.spike;
+    ctx.save();
+    ctx.shadowColor = 'rgba(160,235,255,.6)'; ctx.shadowBlur = 12;
+    if (a) drawSprite(a, s.x, s.y, 0, 0, 1);
+    else {
+      ctx.fillStyle = '#0d2b4a';
+      ctx.beginPath();
+      ctx.moveTo(s.x-15, s.y+15); ctx.lineTo(s.x, s.y-15); ctx.lineTo(s.x+15, s.y+15);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+    return;
+  }
+  const a = ART.icon.saw;
+  ctx.save();
+  ctx.shadowColor = 'rgba(200,230,255,.55)';
+  ctx.shadowBlur = 14;
+  if (a) drawSprite(a, s.x, s.y, s.spin, 0, 1);
+  else {
+    ctx.fillStyle = '#c8dcf0';
+    ctx.beginPath(); ctx.arc(s.x, s.y, 15, 0, 6.283); ctx.fill();
+  }
+  ctx.restore();
+  ctx.globalAlpha = 1;
+}
+
 function drawWarning(wn) {
   const t = 1 - wn.t/wn.max;
   ctx.save();
@@ -3057,7 +4227,12 @@ function render() {
   const fxOn = SAVE.fx !== false;
   const sx = (fxOn && shake > 0.4) ? rand(-shake, shake) : 0;
   const sy = (fxOn && shake > 0.4) ? rand(-shake, shake) : 0;
-  ctx.setTransform(scale, 0, 0, scale, offX*scale + sx, offY*scale + sy);
+  // a small zoom kick on impacts, about the middle of the screen
+  const z = fxOn ? 1 + punch : 1;
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  ctx.setTransform(scale * z, 0, 0, scale * z,
+                   offX * scale * z + cx * (1 - z) + sx,
+                   offY * scale * z + cy * (1 - z) + sy);
 
   const pb = document.getElementById('pauseBtn');
   const live = (state === 'play' || state === 'dying') ? '' : 'none';
@@ -3069,6 +4244,7 @@ function render() {
   drawFloor();
   drawCheckpoints();
   drops.forEach(drawDrop);
+  saws.forEach(drawSaw);
   drawBoss();
   portals.forEach(drawPortal);
   warnings.forEach(drawWarning);
@@ -3095,7 +4271,9 @@ function frame(now) {
   acc += dt;
   let guard = 0;
   while (acc >= STEP && guard++ < 8) { step(); acc -= STEP; }
+  readPulse();
   render();
+  if (state === 'editor') drawEditor();
   requestAnimationFrame(frame);
 }
 
@@ -3108,8 +4286,40 @@ if (window.__DTS_TEST) window.__dts = {
   peek: () => ({ state, run, player, copters, spikes, pickups, portals, newBest, drops }),
   power: { POWERS, POWER_BY, spawnDrop, slowMul },
   perkApi: { PERKS, offerPerks, takePerk, perk, moveMul, coinMul, fallMul, playerBox },
-  bossApi: { getBoss: () => boss, BOSSES, BOSS_CUBE, startBossPhase }
+  bossApi: { getBoss: () => boss, BOSSES, BOSS_CUBE, startBossPhase },
+  build: { startCustom, getSaws: () => saws, spawnObject, openEditor, edPlace, edSave,
+           ED, myLevels, blankLevel, buildMyLevels, buildSearch, edCollect, levelStats }
 };
+/* Installing. Chrome and Edge fire beforeinstallprompt and we show a button;
+   iOS has no such event, so it gets told where Add to Home Screen lives. */
+let installPrompt = null;
+function updateInstallUI() {
+  const btn = document.getElementById('homeInstall');
+  const hint = document.getElementById('installHint');
+  if (!btn || !hint) return;
+  const standalone = matchMedia('(display-mode: standalone)').matches ||
+                     window.navigator.standalone === true;
+  if (standalone) { btn.style.display = 'none'; hint.style.display = 'none'; return; }
+  if (installPrompt) {
+    btn.style.display = ''; hint.style.display = 'none';
+    return;
+  }
+  btn.style.display = 'none';
+  const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if (iOS && location.protocol.startsWith('http')) {
+    hint.style.display = '';
+    hint.textContent = 'To install: tap Share, then Add to Home Screen';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  installPrompt = e;
+  updateInstallUI();
+});
+addEventListener('appinstalled', () => { installPrompt = null; updateInstallUI(); });
+
 // installable app: needs to be served over http(s) - see tools/serve.py
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
