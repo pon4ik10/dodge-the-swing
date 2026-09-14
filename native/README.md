@@ -10,7 +10,7 @@ and sprites ship inside it.
     npm install          # first time only
     npm run apk
 
-The APK lands at:
+The APK is copied to your Desktop as `DodgeTheSwing.apk`, from:
 
     native/android/app/build/outputs/apk/debug/app-debug.apk
 
@@ -33,7 +33,7 @@ Install button.
 
 ## Needed to build
 
-- Java 17            `brew install openjdk@17`
+- Java 21            `brew install openjdk@21`  (Capacitor 7 needs 21, not 17)
 - Android SDK        command-line tools, in `~/Library/Android/sdk`
 - `ANDROID_HOME` pointing at that SDK
 
