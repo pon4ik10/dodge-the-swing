@@ -262,16 +262,80 @@
     padding:6px 10px; border-radius:8px; cursor:pointer;
   }
 
-  /* ---- touch ---- */
-  #touch { position:absolute; inset:auto 0 0 0; height:32%; display:none; padding:10px; gap:10px; z-index:4; }
-  #touch.on { display:flex; }
-  @media (orientation: portrait) { #touch { height:33%; } .pad { font-size:30px; } }
-  .pad { flex:1; border-radius:14px; background:rgba(120,220,255,.09);
-    border:2px solid rgba(140,225,255,.2); display:flex; align-items:center; justify-content:center;
-    color:rgba(190,235,255,.5); font-size:24px; font-family:"Helvetica Neue",Arial,sans-serif; font-weight:900; }
-  .pad.press { background:rgba(120,220,255,.24); }
-  .pad.jump { flex:1.5; }
-  .note { color:#ff9f6d; font-size:12px; font-family:"Helvetica Neue",Arial,sans-serif; font-weight:700; }
+    /* ---- the editor on a short screen ----
+     Eight stacked rows and a 46vh canvas do not coexist on a 360px-tall phone;
+     the canvas ends up a sliver. Here the tool strips scroll sideways instead
+     of wrapping, the labels go, and whatever height is left goes to the canvas
+     so there is actually something to build on. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    #scr-editor { padding:6px 8px; gap:4px; justify-content:flex-start; }
+    #scr-editor .row { flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden;
+                       max-width:100%; gap:6px; scrollbar-width:none; }
+    #scr-editor .row::-webkit-scrollbar { display:none; }
+    #scr-editor .row > * { flex:0 0 auto; }
+    #scr-editor .btn { font-size:11px; padding:6px 11px; border-bottom-width:3px; }
+    #scr-editor .sub { font-size:9px; }
+    #edName { font-size:12px; padding:5px 9px; width:min(150px,34vw); }
+    #edCanvas { width:100%; height:auto; flex:1 1 auto; min-height:120px; }
+    #edHint { display:none; }
+    #edTime { min-width:120px; }
+  }
+
+  /* ---- a phone held sideways is wide and very short ----
+     Sizes keyed to viewport width blow up in landscape (6vw of 740px is 47px
+     of title on a 360px-tall screen), and everything below it falls off the
+     bottom. Below, type is keyed to the short side and the vertical rhythm is
+     tightened, so a whole menu fits on screen instead of needing a scroll. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .screen { padding:10px 14px; gap:7px; justify-content:center; }
+    .title  { font-size:clamp(20px,5.2vmin,30px); }
+    .sub    { font-size:clamp(10px,2.4vmin,12px); }
+    .btn    { font-size:clamp(11px,2.6vmin,14px); padding:8px 16px; border-bottom-width:4px; }
+    .playBig img { width:clamp(70px,17vmin,92px); }
+    .levels { grid-template-columns:repeat(auto-fill, minmax(116px,1fr));
+              grid-auto-rows:132px; gap:8px; }
+    .lvl        { padding:18px 6px 7px; }
+    .lvl .face  { height:34px; flex:0 0 34px; }
+    .lvl .nm    { font-size:10px; line-height:14px; height:14px; margin-top:3px; }
+    .lvl .song  { font-size:9px; line-height:11px; height:11px; }
+    .lvl .coins { height:14px; margin-top:4px; }
+    .lvl .pct   { font-size:10px; height:12px; margin-top:3px; }
+    .lvl .prize, .lvl .prize2 { width:20px; height:20px; }
+    .recRow, .credRow, .secretRow { padding:5px 8px; font-size:11px; }
+    .lvRow { padding:6px 8px; }
+  }
+  /* phone notches and rounded corners */
+  .screen { padding-left:max(14px, env(safe-area-inset-left));
+            padding-right:max(14px, env(safe-area-inset-right)); }
+
+  /* ---- touch: no buttons. Slide the left half to move, tap the right to jump ---- */
+  #touchHint {
+    position:absolute; inset:auto 0 14px 0; display:none; justify-content:space-around;
+    z-index:6; pointer-events:none; opacity:0; transition:opacity .5s;
+    font-family:"Helvetica Neue",Arial,sans-serif;
+  }
+  #touchHint.on { display:flex; opacity:1; }
+  #touchHint div { display:flex; flex-direction:column; align-items:center; gap:2px;
+                   background:rgba(6,17,31,.55); border-radius:12px; padding:7px 16px; }
+  #touchHint b { font-size:13px; letter-spacing:2px; color:#ffd23f; }
+  #touchHint span { font-size:10px; letter-spacing:1px; color:#9fd8f5; font-weight:700; }
+
+  /* Upright, this game has nowhere to put a playfield - so ask for sideways. */
+  #rotate {
+    position:absolute; inset:0; z-index:60; display:none; flex-direction:column;
+    align-items:center; justify-content:center; gap:20px; background:#06111f;
+    font-family:"Helvetica Neue",Arial,sans-serif;
+  }
+  #rotate.on { display:flex; }
+  #rotate .ph {
+    width:58px; height:96px; border:4px solid #4fb6ff; border-radius:11px;
+    box-shadow:0 0 30px rgba(45,190,255,.4); animation:tip 1.9s ease-in-out infinite;
+  }
+  #rotate .rt { font-size:15px; font-weight:800; letter-spacing:1.5px; color:#bfe6ff; }
+  @keyframes tip {
+    0%,32% { transform:rotate(0deg); } 58%,100% { transform:rotate(-90deg); }
+  }
+
 </style>
 </head>
 <body>
@@ -321,7 +385,6 @@
     <div class="row">
       <button class="btn" id="onDaily">Daily</button>
       <button class="btn" id="onEndless">Endless</button>
-      <button class="btn" id="onBoss">Boss</button>
     </div>
     <div class="row">
       <button class="btn ghost" id="onRecords">Records</button>
@@ -602,10 +665,15 @@
 
   <div id="toastWrap"></div>
 
-  <div id="touch">
-    <div class="pad" data-act="left">&#8592;</div>
-    <div class="pad jump" data-act="jump">JUMP</div>
-    <div class="pad" data-act="right">&#8594;</div>
+  <!-- Controls are the screen itself: slide the left half, tap the right half.
+       Nothing is drawn over the game except a one-time hint. -->
+  <div id="touchHint">
+    <div><b>SLIDE</b><span>to move</span></div>
+    <div><b>TAP</b><span>to jump</span></div>
+  </div>
+  <div id="rotate">
+    <div class="ph"></div>
+    <div class="rt">Turn your phone sideways</div>
   </div>
 </div>
 
@@ -914,11 +982,8 @@ function resize() {
   const cw = canvas.clientWidth, ch = canvas.clientHeight;
   canvas.width = Math.round(cw * dpr);
   canvas.height = Math.round(ch * dpr);
-  // held upright with touch controls, the pads own the bottom third,
-  // so the playfield is fitted and centred in what is left above them
-  const portrait = ch > cw;
-  const padBottom = (isTouch && portrait) ? ch * 0.34 : 0;
-  const usableH = Math.max(ch - padBottom, 120);
+  // the whole screen is the playfield now - the controls are invisible
+  const usableH = Math.max(ch, 120);
   scale = Math.min(cw / W, usableH / H) * dpr;
   viewW = canvas.width / scale;
   viewH = canvas.height / scale;
@@ -1219,16 +1284,93 @@ addEventListener('keyup', e => {
 }, { passive:false });
 addEventListener('blur', () => { input.left = input.right = input.jump = false; });
 
-const touchWrap = document.getElementById('touch');
-touchWrap.querySelectorAll('.pad').forEach(pad => {
-  const act = pad.dataset.act;
-  const on  = e => { e.preventDefault(); input[act] = true;  pad.classList.add('press'); };
-  const off = e => { e.preventDefault(); input[act] = false; pad.classList.remove('press'); };
-  pad.addEventListener('pointerdown', on);
-  pad.addEventListener('pointerup', off);
-  pad.addEventListener('pointercancel', off);
-  pad.addEventListener('pointerleave', off);
-});
+/* Touch controls without any buttons on screen.
+ *
+ * The left half of the screen steers: put a thumb down anywhere and slide it -
+ * how far you slide from where you started is the direction, so your thumb
+ * never has to find a target it cannot see. The right half jumps, and holding
+ * it keeps jumping the moment you land, the way holding the mouse does in GD.
+ *
+ * Both halves work at once because each finger is tracked by its own id. */
+const touchWrap = document.getElementById('touchHint');
+const STEER_DEAD = 14;        // slide this far before it counts as a direction
+const touches = {};           // pointerId -> { side, originX }
+
+function touchZonesActive() { return state === 'play' || state === 'dying'; }
+
+function steerFrom(t, x) {
+  const dx = x - t.originX;
+  input.left  = dx < -STEER_DEAD;
+  input.right = dx >  STEER_DEAD;
+  // sliding back past your start point re-centres, so a long drag stays usable
+  if (dx < -STEER_DEAD * 4) t.originX = x + STEER_DEAD * 4;
+  if (dx >  STEER_DEAD * 4) t.originX = x - STEER_DEAD * 4;
+}
+
+addEventListener('pointerdown', e => {
+  if (!isTouch || !touchZonesActive()) return;
+  const t = { side: e.clientX < innerWidth / 2 ? 'steer' : 'jump', originX: e.clientX };
+  touches[e.pointerId] = t;
+  if (t.side === 'jump') input.jump = true; else steerFrom(t, e.clientX);
+  hideTouchHint();
+}, { passive:true });
+
+addEventListener('pointermove', e => {
+  const t = touches[e.pointerId];
+  if (t && t.side === 'steer') steerFrom(t, e.clientX);
+}, { passive:true });
+
+function endTouch(e) {
+  const t = touches[e.pointerId];
+  if (!t) return;
+  delete touches[e.pointerId];
+  if (t.side === 'jump') {
+    if (!Object.values(touches).some(o => o.side === 'jump')) input.jump = false;
+  } else if (!Object.values(touches).some(o => o.side === 'steer')) {
+    input.left = input.right = false;
+  }
+}
+addEventListener('pointerup', endTouch, { passive:true });
+addEventListener('pointercancel', endTouch, { passive:true });
+
+/* The hint shows for the first few seconds of your first ever go, then never
+   again - it is there to teach the controls, not to decorate the screen. */
+let hintTimer = 0;
+function showTouchHint() {
+  if (!isTouch || SAVE.sawTouchHint) return;
+  touchWrap.classList.add('on');
+  hintTimer = 4.5;
+}
+function hideTouchHint() {
+  if (!touchWrap.classList.contains('on')) return;
+  touchWrap.classList.remove('on');
+  hintTimer = 0;
+  SAVE.sawTouchHint = true; store();
+}
+
+/* Sideways only. The playfield is wide, and squeezed upright there is nowhere
+   to put it - so the game asks for the phone to be turned and pauses until it
+   is, rather than dealing you an unplayable screen. */
+const rotateBox = document.getElementById('rotate');
+let wasUpright = false;
+function checkOrientation() {
+  if (!isTouch) return;
+  const upright = innerHeight > innerWidth;
+  if (upright === wasUpright) return;
+  wasUpright = upright;
+  rotateBox.classList.toggle('on', upright);
+  if (upright && state === 'play') pauseGame();      // never die to a rotation
+  if (!upright) resize();
+}
+// Android lets an installed game ask to stay sideways; iOS ignores it, which is
+// what the overlay above is for.
+function lockLandscape() {
+  try {
+    const so = screen.orientation;
+    if (so && so.lock) so.lock('landscape').catch(() => {});
+  } catch (e) {}
+}
+addEventListener('pointerdown', lockLandscape, { once:true });
 
 
 /* ============================================================
@@ -1281,7 +1423,7 @@ const screens = {
 };
 function show(which) {
   Object.keys(screens).forEach(k => screens[k].classList.toggle('hidden', k !== which));
-  touchWrap.classList.toggle('on', isTouch && which === null);
+  if (which !== null) touchWrap.classList.remove('on');   // no hint over a menu
   // Leaving a screen must never leave its music running. The editor is the one
   // exception: it previews the level's own song while you are in it.
   if (which === 'editor') stopMusic();
@@ -1313,7 +1455,7 @@ function resumeGame() {
   if (state !== 'paused') return;
   state = 'play';
   show(null);
-  touchWrap.classList.toggle('on', isTouch);
+  showTouchHint();
   if (MUS.el && SAVE.music) MUS.el.play().catch(() => {});
 }
 // Leaving a run returns you to wherever you started it, not always the main
@@ -2576,7 +2718,7 @@ function takePerk(P) {
   play('best'); buzz([25, 40, 25]);
   state = 'play';
   show(null);
-  touchWrap.classList.toggle('on', isTouch);
+  showTouchHint();
   achievement('PERK TAKEN', P.name, undefined);
 }
 
@@ -3057,7 +3199,6 @@ document.getElementById('onSearch').addEventListener('click', () => {
 });
 document.getElementById('onDaily').addEventListener('click', openDaily);
 document.getElementById('onEndless').addEventListener('click', startEndless);
-document.getElementById('onBoss').addEventListener('click', () => { toMenu(); });
 document.getElementById('onRecords').addEventListener('click', toRecords);
 document.getElementById('onChest').addEventListener('click', () => {
   state = 'chest'; show('chest'); buildChest(); play('chestClick');
@@ -3294,7 +3435,7 @@ function startLevel(idx, mode) {
   rebuildLevelArt(L);
   state = 'play';
   show(null);
-  touchWrap.classList.toggle('on', isTouch);
+  showTouchHint();
   playMusic(L.music, true);
   try { SFX.coin.el.load(); SFX.death.el.load(); } catch (e) {}
 }
@@ -3438,7 +3579,7 @@ function startCustom(lv, from) {
   player.rot = 0; player.spinDir = 1; player.dead = false; player.trail = [];
   rebuildLevelArt(L);
   state = 'play'; show(null);
-  touchWrap.classList.toggle('on', isTouch);
+  showTouchHint();
   playMusic(L.music, true, { start:L.mStart, rate:L.mRate });
 }
 
@@ -3471,7 +3612,7 @@ function startEndless() {
   player.rot = 0; player.spinDir = 1; player.dead = false; player.trail = [];
   rebuildLevelArt(L);
   state = 'play'; show(null);
-  touchWrap.classList.toggle('on', isTouch);
+  showTouchHint();
   playMusic(L.music, true);
 }
 
@@ -3617,7 +3758,7 @@ function startDaily() {
   player.rot = 0; player.spinDir = 1; player.dead = false; player.trail = [];
   rebuildLevelArt(L);
   state = 'play'; show(null);
-  touchWrap.classList.toggle('on', isTouch);
+  showTouchHint();
   playMusic(L.music, true);
 }
 
@@ -4782,6 +4923,8 @@ function frame(now) {
   readPulse();
   render();
   if (state === 'editor') drawEditor();
+  if (hintTimer > 0 && (hintTimer -= dt) <= 0) hideTouchHint();
+  checkOrientation();
   requestAnimationFrame(frame);
 }
 
@@ -4789,6 +4932,8 @@ if (window.__DTS_TEST) window.__dts = {
   api: { startLevel, startEndless, startDaily, LEVELS, lvRec, SAVE, escore,
          snapshot, restoreSnap, step,
          setInput: (l, r, j) => { input.left = l; input.right = r; input.jump = j; },
+         getInput: () => input,
+         tickOrientation: () => checkOrientation(),
          redeem, coinBank, CODES, palette, REWARDS, COIN_REWARDS, CUBE_DEF, defUnlocked, haveCube, achievement, syncCoinPrizes, DEV_TOOLS,
          setState: v => { state = v; } },
   peek: () => ({ state, run, player, copters, spikes, pickups, portals, newBest, drops }),
