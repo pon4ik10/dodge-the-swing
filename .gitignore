@@ -10,3 +10,4 @@ music/*.mp3
 server/stats.json
 
 .DS_Store
+server/stats.json.bak*

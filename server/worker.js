@@ -125,6 +125,7 @@ export default {
         author: acct.name,
         authorId: acct.uid,
         secs: Math.max(5, Math.min(120, parseInt(lv.secs, 10) || 30)),
+        diff: Math.max(0, Math.min(10, parseInt(lv.diff, 10) || 0)),
         obj: objs,
         bg: clean(lv.bg, 9), gr: clean(lv.gr, 9),
         music: clean(lv.music, 12),
@@ -139,19 +140,41 @@ export default {
       return json({ ok: true, id: lid, name: rec.name, author: rec.author });
     }
 
+    /* Taking a level down: the author can remove their own, and you can remove
+       anything by setting an ADMIN_KEY secret on the Worker. Needed the moment
+       strangers can publish to a site with your name on it. */
+    if (path === '/delete' && request.method === 'POST') {
+      const lid = clean(body.level, 12);
+      if (!lid) return json({ error: 'level required' }, 400);
+      const raw = await env.STATS.get('lvl:' + lid);
+      if (!raw) return json({ error: 'No level with that id' }, 404);
+      const lv = JSON.parse(raw);
+      const isAdmin = env.ADMIN_KEY && body.admin && safeEqual(String(body.admin), String(env.ADMIN_KEY));
+      if (!isAdmin) {
+        const acct = await auth(env, body);
+        if (!acct || acct.uid !== lv.authorId)
+          return json({ error: 'Only the author can delete this' }, 403);
+      }
+      await env.STATS.delete('lvl:' + lid);
+      await env.STATS.delete('meta:' + lid);
+      return json({ ok: true, id: lid });
+    }
+
     if (path === '/levels') {
       const q = clean(url.searchParams.get('q'), 24).toLowerCase();
+      const wantDiff = parseInt(url.searchParams.get('diff') || '0', 10);
       const list = await env.STATS.list({ prefix: 'lvl:', limit: 200 });
       const out = [];
       for (const k of list.keys) {
         const raw = await env.STATS.get(k.name);
         if (!raw) continue;
         const lv = JSON.parse(raw);
+        if (wantDiff && (lv.diff || 0) !== wantDiff) continue;
         if (q && lv.name.toLowerCase().indexOf(q) < 0 &&
                  lv.id.toLowerCase().indexOf(q) < 0 &&
                  lv.author.toLowerCase().indexOf(q) < 0) continue;
         const m = await meta(env, lv.id);
-        out.push({ id: lv.id, name: lv.name, author: lv.author,
+        out.push({ id: lv.id, name: lv.name, author: lv.author, diff: lv.diff || 0,
                    secs: lv.secs, objects: lv.obj.length, plays: m.plays, likes: m.likes });
         if (out.length >= 60) break;
       }

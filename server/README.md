@@ -51,3 +51,16 @@ no accounts, no personal data.
 Likes are only as honest as the people clicking them: a determined person can
 clear their storage and like again. That's true of every like button without
 logins, and logins are a much bigger build.
+
+## Testing without destroying real data
+
+The server writes to `server/stats.json`, which holds every account and
+published level and exists nowhere else. **Never test against it.** Point the
+server at a scratch file instead:
+
+```
+DATA_FILE=/tmp/test-stats.json node server/server.js 8796
+```
+
+On startup, and every five minutes, the live file is rolled into
+`stats.json.bak1` … `.bak3`, so a bad wipe can be undone.

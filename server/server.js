@@ -5,10 +5,29 @@
  */
 const http = require('http'), fs = require('fs'), path = require('path'), crypto = require('crypto');
 const PORT = parseInt(process.argv[2] || '8790', 10);
-const FILE = path.join(__dirname, 'stats.json');
+// Tests must never run against the real database. Point DATA_FILE somewhere
+// else and this server will not touch the live one.
+const FILE = process.env.DATA_FILE
+  ? path.resolve(process.env.DATA_FILE)
+  : path.join(__dirname, 'stats.json');
 
 let db = { acct: {}, names: {}, lvl: {}, meta: {}, liked: {} };
 try { db = Object.assign(db, JSON.parse(fs.readFileSync(FILE, 'utf8'))); } catch (e) {}
+
+/* Keep the last few versions. Accounts and levels are irreplaceable - there is
+   no other copy of them anywhere - so a bad wipe should always be undoable. */
+function backup() {
+  if (!fs.existsSync(FILE)) return;
+  try {
+    for (let i = 3; i > 1; i--) {
+      const older = FILE + '.bak' + (i - 1), newer = FILE + '.bak' + i;
+      if (fs.existsSync(older)) fs.copyFileSync(older, newer);
+    }
+    fs.copyFileSync(FILE, FILE + '.bak1');
+  } catch (e) {}
+}
+backup();
+setInterval(backup, 5 * 60 * 1000);
 let dirty = false;
 setInterval(() => { if (dirty) { fs.writeFileSync(FILE, JSON.stringify(db)); dirty = false; } }, 800);
 
@@ -85,15 +104,32 @@ http.createServer((req, res) => {
       if (prev && prev.authorId !== a.uid) return send(res, { error: 'That level id belongs to someone else' }, 403);
       db.lvl[lid] = { id: lid, name: clean(lv.name, 24) || 'Untitled', author: a.name, authorId: a.uid,
                       secs: Math.max(5, Math.min(120, parseInt(lv.secs, 10) || 30)), obj: objs,
+                      diff: Math.max(0, Math.min(10, parseInt(lv.diff, 10) || 0)),
                       bg: clean(lv.bg, 9), gr: clean(lv.gr, 9), music: clean(lv.music, 12), made: Date.now() };
       dirty = true;
       return send(res, { ok: true, id: lid, name: db.lvl[lid].name, author: a.name });
     }
+    if (p === '/delete' && req.method === 'POST') {
+      const lid = clean(body.level, 12);
+      const lv = db.lvl[lid];
+      if (!lv) return send(res, { error: 'No level with that id' }, 404);
+      const isAdmin = process.env.ADMIN_KEY && body.admin &&
+                      safeEqual(String(body.admin), String(process.env.ADMIN_KEY));
+      if (!isAdmin) {
+        const a = auth(body);
+        if (!a || a.uid !== lv.authorId) return send(res, { error: 'Only the author can delete this' }, 403);
+      }
+      delete db.lvl[lid]; delete db.meta[lid]; dirty = true;
+      return send(res, { ok: true, id: lid });
+    }
     if (p === '/levels') {
       const q = clean(url.searchParams.get('q'), 24).toLowerCase();
-      const out = Object.values(db.lvl).filter(lv => !q ||
+      const wantDiff = parseInt(url.searchParams.get('diff') || '0', 10);
+      const out = Object.values(db.lvl)
+        .filter(lv => !wantDiff || (lv.diff || 0) === wantDiff)
+        .filter(lv => !q ||
         lv.name.toLowerCase().includes(q) || lv.id.toLowerCase().includes(q) || lv.author.toLowerCase().includes(q))
-        .map(lv => ({ id: lv.id, name: lv.name, author: lv.author, secs: lv.secs,
+        .map(lv => ({ id: lv.id, name: lv.name, author: lv.author, secs: lv.secs, diff: lv.diff || 0,
                       objects: lv.obj.length, plays: meta(lv.id).plays, likes: meta(lv.id).likes }))
         .sort((a, b) => b.likes - a.likes).slice(0, 60);
       return send(res, { levels: out });
@@ -136,4 +172,7 @@ http.createServer((req, res) => {
     req.on('data', c => { raw += c; if (raw.length > 400000) req.destroy(); });
     req.on('end', () => { let b = {}; try { b = JSON.parse(raw); } catch (e) {} go(b); });
   } else go({});
-}).listen(PORT, () => console.log('API on http://localhost:' + PORT));
+}).listen(PORT, () => {
+  console.log('API on http://localhost:' + PORT);
+  console.log('data: ' + FILE);
+});

@@ -176,6 +176,8 @@
                font-size:9px; letter-spacing:.5px; color:#bfe6ff; }
   .tool.on { background:#1b4d78; border-color:#ffd23f; }
   .tool.on span { color:#fff; }
+  #edSong { background:rgba(18,58,99,.6); border:2px solid #1d5a92; border-radius:10px;
+             padding:7px 10px; gap:12px; width:min(900px,96vw); }
   #edInspect { background:rgba(18,58,99,.6); border:2px solid #1d5a92; border-radius:10px;
                padding:7px 10px; gap:12px; width:min(900px,96vw); }
   .insp { display:flex; align-items:center; gap:5px;
@@ -183,7 +185,7 @@
   .insp b { color:#dff1ff; min-width:34px; text-align:center; font-size:12px; }
   .insp button { width:22px; height:22px; border:0; border-radius:6px; cursor:pointer;
                  background:#22608f; color:#dff1ff; font-weight:900; font-size:13px; line-height:1; }
-  .lvRow { display:grid; grid-template-columns:1fr 58px 62px 58px; align-items:center; gap:8px;
+  .lvRow { display:grid; grid-template-columns:1fr 50px 50px 66px 58px; align-items:center; gap:8px;
            padding:9px 11px; border-radius:9px; background:rgba(18,58,99,.55);
            border:1px solid #1d5a92; font-family:"Helvetica Neue",Arial,sans-serif;
            font-weight:800; font-size:12px; }
@@ -337,6 +339,7 @@
     </div>
     <div class="row" id="edTools"></div>
     <div class="row" id="edStyle"></div>
+    <div class="row" id="edSong" style="display:none"></div>
     <canvas id="edCanvas"></canvas>
     <div class="row" id="edInspect" style="display:none"></div>
     <div class="row" style="width:min(900px,96vw)">
@@ -377,6 +380,29 @@
     </div>
   </div>
 
+  <!-- ================= level page ================= -->
+  <div id="scr-levelinfo" class="screen hidden" style="justify-content:center">
+    <div class="panel">
+      <img id="liFace" alt="" style="width:70px;height:auto;margin-top:-4px">
+      <div class="gdtext" id="liName" style="font-size:21px"></div>
+      <div class="sub" id="liAuthor"></div>
+      <div class="statRow" style="gap:24px">
+        <div class="stat"><div class="k">PLAYS</div><div class="v" id="liPlays" style="color:#8fe4ff"></div></div>
+        <div class="stat"><div class="k">LIKES</div><div class="v" id="liLikes" style="color:#7cff9b"></div></div>
+        <div class="stat"><div class="k">LENGTH</div><div class="v" id="liLen"></div></div>
+      </div>
+      <div class="btnRow">
+        <button class="imgBtn" id="liBack"><img id="imgLiBack" alt="Back"></button>
+        <button class="imgBtn big" id="liPlay"><img id="imgLiPlay" alt="Play"></button>
+      </div>
+      <div class="row">
+        <button class="btn ghost" id="liLike">Like</button>
+        <button class="btn ghost" id="liEdit" style="display:none">Edit</button>
+      </div>
+      <div class="note" id="liNote"></div>
+    </div>
+  </div>
+
   <!-- ================= search ================= -->
   <div id="scr-search" class="screen hidden">
     <div class="title gdtext" style="font-size:clamp(22px,5vw,38px)">Search</div>
@@ -385,6 +411,7 @@
       <button class="btn" id="sqGo">Search</button>
       <button class="btn ghost" id="sqBack">Back</button>
     </div>
+    <div class="row" id="sqDiff"></div>
     <div class="sub" id="sqNote"></div>
     <div class="recTable" id="sqList" style="max-width:640px"></div>
   </div>
@@ -396,7 +423,7 @@
       <button class="btn" id="lvNew">New Level</button>
       <button class="btn ghost" id="lvBack">Back</button>
     </div>
-    <div class="sub">Your levels. Pick one up where you left off.</div>
+    <div class="sub">Every level you make lives here. Publish one to put it in Search for everyone.</div>
     <div class="sub" id="lvPubNote" style="font-size:11px"></div>
     <div class="recTable" id="lvList" style="max-width:640px"></div>
   </div>
@@ -911,7 +938,7 @@ function play(name) {
   } catch (e) {}
 }
 
-const MUS = { el:null, key:null };
+const MUS = { el:null, key:null, start:0, rate:1 };
 
 /* Visual pulse.
    This used to tap the music with a WebAudio analyser, but
@@ -955,10 +982,13 @@ function trackFor(key) {
   if (g) return { src: 'assets-local/music/' + g.file, title: g.title };
   return null;
 }
-function playMusic(key, restart) {
+/* opts: { start } second to begin at, { rate } playback speed. */
+function playMusic(key, restart, opts) {
   if (!SAVE.music || !trackFor(key)) return;
-  if (MUS.key === key && MUS.el) {
-    if (restart) { try { MUS.el.currentTime = 0; } catch (e) {} }
+  const start = (opts && opts.start) || 0;
+  const rate = (opts && opts.rate) || 1;
+  if (MUS.key === key && MUS.el && MUS.start === start && MUS.rate === rate) {
+    if (restart) { try { MUS.el.currentTime = start; } catch (e) {} }
     MUS.el.play().catch(()=>{});
     return;
   }
@@ -966,7 +996,16 @@ function playMusic(key, restart) {
   const t = trackFor(key);
   try {
     const a = new Audio(t.src);
-    a.loop = true;
+    a.playbackRate = rate;
+    if (start > 0) {                  // looping back to 0 would lose the offset
+      a.loop = false;
+      a.addEventListener('ended', () => {
+        try { a.currentTime = start; a.play(); } catch (e) {}
+      });
+      a.addEventListener('loadedmetadata', () => {
+        try { a.currentTime = Math.min(start, (a.duration || start) - 0.1); } catch (e) {}
+      });
+    } else a.loop = true;
     a.volume = clamp(SAVE.musicVol === undefined ? 0.42 : SAVE.musicVol, 0, 1);
     a.onerror = () => {                 // file not downloaded yet -> use the backup
       if (!t.alt || a.dataset.fell) return;
@@ -977,12 +1016,14 @@ function playMusic(key, restart) {
     a.play().catch(() => {
       if (t.alt && !a.dataset.fell) { a.dataset.fell = '1'; a.src = t.alt; a.play().catch(()=>{}); }
     });
-    MUS.el = a; MUS.key = key;
+    MUS.el = a; MUS.key = key; MUS.start = start; MUS.rate = rate;
   } catch (e) {}
 }
 function stopMusic() {
-  if (MUS.el) { try { MUS.el.pause(); } catch (e) {} }
-  MUS.el = null; MUS.key = null;
+  if (MUS.el) {
+    try { MUS.el.pause(); MUS.el.currentTime = 0; MUS.el.src = ''; } catch (e) {}
+  }
+  MUS.el = null; MUS.key = null; MUS.start = 0; MUS.rate = 1;
 }
 function songTitle(key) {
   const t = trackFor(key);
@@ -1104,6 +1145,8 @@ function wireUIImages() {
   set('imgChestBtn2','chest');
   set('imgDailyPlay','nextBtn');
   set('imgDailyBack','menuBtn');
+  set('imgLiPlay','nextBtn');
+  set('imgLiBack','menuBtn');
 }
 function rebuildLevelArt(L) {
   ART.icon.swing  = compose([['swing_2', L.sw[1]], ['swing', L.sw[0]], ['swing_x', null]]);
@@ -1199,6 +1242,7 @@ const screens = {
   editor:   document.getElementById('scr-editor'),
   mylevels: document.getElementById('scr-mylevels'),
   search:   document.getElementById('scr-search'),
+  levelinfo:document.getElementById('scr-levelinfo'),
   account:  document.getElementById('scr-account'),
   perks:    document.getElementById('scr-perks'),
   complete: document.getElementById('scr-complete'),
@@ -1206,6 +1250,10 @@ const screens = {
 function show(which) {
   Object.keys(screens).forEach(k => screens[k].classList.toggle('hidden', k !== which));
   touchWrap.classList.toggle('on', isTouch && which === null);
+  // Leaving a screen must never leave its music running. The editor is the one
+  // exception: it previews the level's own song while you are in it.
+  if (which === 'editor') stopMusic();
+  else if (which) playMusic('menu', false);
 }
 function pauseGame() {
   if (state !== 'play') return;
@@ -1622,11 +1670,12 @@ const ED_TOOLS = [
   { k:'saw',  name:'SAW',    col:'#dfe9f5' },
   { k:'prt',  name:'SPEED',  col:'#7cff9b' },
 ];
-const ED = { lv:null, tool:'cop', T:0, sel:-1, tier:2, side:-1, undo:[] };
+const ED = { lv:null, tool:'cop', T:0, sel:-1, tier:2, side:-1, undo:[], songOpen:false };
 
 function blankLevel() {
   return { id:null, name:'', secs:30, obj:[],
-           sw:['#3ac9ff','#ffffff'], bg:'#2f74c0', gr:'#1b4f8f', music:'lvl1' };
+           sw:['#3ac9ff','#ffffff'], bg:'#2f74c0', gr:'#1b4f8f',
+           music:'lvl1', mStart:0, mRate:1, diff:1 };
 }
 function newId() {
   const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -1903,8 +1952,11 @@ function openEditor(lv) {
   document.getElementById('edSecsV').textContent = ED.lv.secs + 's';
   edSyncTime();
   rebuildLevelArt(ED.lv);        // preview uses this level's own colours
+  stopMusic();                   // silent until you press play in the song panel
+  ED.songOpen = false;
   buildTools();
   buildStyle();
+  buildSong();
   buildInspector();
   edHint();
 }
@@ -1977,26 +2029,97 @@ function buildStyle() {
     box.appendChild(b);
   });
 
+  // difficulty, picked with the same faces the level list uses
+  const dl = document.createElement('div');
+  dl.className = 'insp';
+  dl.innerHTML = '<span>DIFFICULTY</span>';
+  box.appendChild(dl);
+  for (let i = 1; i <= 10; i++) {
+    const u = artURL('diff' + String(i).padStart(2, '0'));
+    if (!u) continue;
+    const im = document.createElement('img');
+    im.src = u;
+    im.style.cssText = 'height:30px;width:auto;cursor:pointer;border-radius:6px;padding:1px;' +
+      'opacity:' + ((ED.lv.diff || 1) === i ? '1' : '0.38') +
+      ';outline:' + ((ED.lv.diff || 1) === i ? '2px solid #ffd23f' : 'none');
+    im.addEventListener('click', () => { ED.lv.diff = i; buildStyle(); });
+    box.appendChild(im);
+  }
+
+  const b = document.createElement('button');
+  b.className = 'btn ghost';
+  b.style.cssText = 'padding:6px 12px;font-size:12px';
+  b.textContent = '\u266A  ' + (songTitle(ED.lv.music) || 'Song');
+  b.addEventListener('click', () => {
+    ED.songOpen = !ED.songOpen;
+    if (!ED.songOpen) stopMusic();          // closing it always silences the preview
+    buildSong();
+  });
+  box.appendChild(b);
+}
+
+/* The song panel: pick it, hear it, stop it, and set where it starts and how
+   fast it runs. Nothing plays until you ask it to. */
+function buildSong() {
+  const box = document.getElementById('edSong');
+  if (!ED.songOpen) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  box.style.display = '';
+  box.innerHTML = '';
+
   const songs = songList();
   const cur = Math.max(0, songs.indexOf(ED.lv.music));
-  const wrap = document.createElement('div');
-  wrap.className = 'insp';
-  const prev = document.createElement('button'); prev.textContent = '<';
-  const name = document.createElement('b');
-  name.style.minWidth = '120px';
-  name.textContent = songTitle(songs[cur]) || 'none';
-  const next = document.createElement('button'); next.textContent = '>';
-  const set = d => {
-    const i = (cur + d + songs.length) % songs.length;
-    ED.lv.music = songs[i];
-    buildStyle();
-    playMusic(ED.lv.music, true);        // hear it straight away
+  const playing = !!(MUS.el && MUS.key === ED.lv.music);
+
+  const row = (label, node) => {
+    const w = document.createElement('div');
+    w.className = 'insp';
+    if (label) { const sp = document.createElement('span'); sp.textContent = label; w.appendChild(sp); }
+    node.forEach(n => w.appendChild(n));
+    box.appendChild(w);
+    return w;
   };
-  prev.addEventListener('click', () => set(-1));
-  next.addEventListener('click', () => set(1));
-  wrap.innerHTML = '<span>SONG</span>';
-  wrap.appendChild(prev); wrap.appendChild(name); wrap.appendChild(next);
-  box.appendChild(wrap);
+  const btn = (txt, fn, wide) => {
+    const b = document.createElement('button');
+    b.textContent = txt;
+    if (wide) b.style.width = 'auto', b.style.padding = '0 9px';
+    b.addEventListener('click', fn);
+    return b;
+  };
+
+  const nameEl = document.createElement('b');
+  nameEl.style.minWidth = '130px';
+  nameEl.textContent = songTitle(songs[cur]) || 'none';
+  row('SONG', [
+    btn('<', () => { ED.lv.music = songs[(cur - 1 + songs.length) % songs.length]; preview(); }),
+    nameEl,
+    btn('>', () => { ED.lv.music = songs[(cur + 1) % songs.length]; preview(); }),
+  ]);
+
+  row('', [ btn(playing ? 'Pause' : 'Play', () => {
+    if (playing) { stopMusic(); buildSong(); } else preview();
+  }, true) ]);
+
+  const startEl = document.createElement('b');
+  startEl.textContent = (ED.lv.mStart || 0).toFixed(1) + 's';
+  row('STARTS AT', [
+    btn('-', () => { ED.lv.mStart = Math.max(0, Math.round(((ED.lv.mStart || 0) - 0.5) * 10) / 10); preview(); }),
+    startEl,
+    btn('+', () => { ED.lv.mStart = Math.round(((ED.lv.mStart || 0) + 0.5) * 10) / 10; preview(); }),
+  ]);
+
+  const rateEl = document.createElement('b');
+  rateEl.textContent = (ED.lv.mRate || 1).toFixed(2) + 'x';
+  row('SPEED', [
+    btn('-', () => { ED.lv.mRate = clamp(Math.round(((ED.lv.mRate || 1) - 0.05) * 100) / 100, 0.5, 2); preview(); }),
+    rateEl,
+    btn('+', () => { ED.lv.mRate = clamp(Math.round(((ED.lv.mRate || 1) + 0.05) * 100) / 100, 0.5, 2); preview(); }),
+  ]);
+
+  function preview() {
+    stopMusic();
+    playMusic(ED.lv.music, true, { start:ED.lv.mStart || 0, rate:ED.lv.mRate || 1 });
+    buildStyle(); buildSong();
+  }
 }
 
 /* Change whatever is selected without typing anything. */
@@ -2171,7 +2294,7 @@ function accSignOut() { SAVE.account = null; store(); buildAccount(); }
 function publishLevel(l, done) {
   if (!signedIn()) { openAccount('settings');
     document.getElementById('accNote').textContent = 'Make an account to publish levels'; return; }
-  apiPost('/publish', authBody({ level:l }))
+  apiPost('/publish', authBody({ level:Object.assign({}, l, { diff:l.diff || 1 }) }))
     .then(d => { achievement('PUBLISHED', d.name + '  ' + d.id, undefined); if (done) done(); })
     .catch(e => { achievement('COULD NOT PUBLISH', e.message === 'offline' ? 'no server' : e.message, undefined); });
 }
@@ -2184,7 +2307,7 @@ function levelRow(l, opts) {
   row.innerHTML =
     '<div class="ln">' + (l.name || 'Untitled') +
     '<div class="li">' + l.id + '  &middot;  ' + (l.obj || []).length + ' objects  &middot;  ' +
-    l.secs + 's  &middot;  ' + st.plays + ' plays  &middot;  ' + st.likes + ' likes</div></div>';
+    l.secs + 's  &middot;  ' + (l.published ? 'published' : 'not published') + '</div></div>';
   const mk = (label, fn) => {
     const b = document.createElement('button');
     b.textContent = label;
@@ -2192,14 +2315,26 @@ function levelRow(l, opts) {
     return b;
   };
   row.appendChild(mk('Play', () => { bumpPlay(l.id); startCustom(JSON.parse(JSON.stringify(l))); }));
-  if (opts.edit) row.appendChild(mk(opts.publish ? 'Publish' : 'Edit',
-      opts.publish ? () => publishLevel(l, opts.refresh)
-                   : () => openEditor(JSON.parse(JSON.stringify(l)))));
-  else row.appendChild(mk('Like', () => { likeLevel(l.id); opts.refresh(); }));
-  row.appendChild(mk(opts.edit ? 'Delete' : 'Copy', () => {
-    if (opts.edit) { SAVE.levels = myLevels().filter(x => x.id !== l.id); store(); }
-    opts.refresh();
-  }));
+  if (opts.edit) {
+    row.appendChild(mk('Edit', () => openEditor(JSON.parse(JSON.stringify(l)))));
+    const pub = mk(l.published ? 'Update' : 'Publish', () => {
+      publishLevel(l, () => {
+        l.published = true;
+        const mine = myLevels().find(x => x.id === l.id);
+        if (mine) mine.published = true;
+        store();
+        opts.refresh();
+      });
+    });
+    if (l.published) pub.style.background = '#2f8f5c';
+    row.appendChild(pub);
+    row.appendChild(mk('Delete', () => {
+      SAVE.levels = myLevels().filter(x => x.id !== l.id); store(); opts.refresh();
+    }));
+  } else {
+    row.appendChild(mk('Like', () => { likeLevel(l.id); opts.refresh(); }));
+    row.appendChild(mk('Copy', () => opts.refresh()));
+  }
   return row;
 }
 function emptyRow(msg) {
@@ -2231,9 +2366,11 @@ function likeLevel(id) {
 
 function buildMyLevels() {
   const note = document.getElementById('lvPubNote');
-  if (note) note.textContent = signedIn()
-    ? 'Signed in as ' + account().name + ' - your levels can be published'
-    : 'Sign in (Settings > Account) to publish levels so others can play them';
+  if (note) note.textContent = !LIKES_API
+    ? 'Publishing needs the server running - see server/README.md'
+    : (signedIn()
+        ? 'Signed in as ' + account().name + ' - hit Publish to put a level online'
+        : 'Sign in first (Settings > Account), then Publish puts a level online');
   const box = document.getElementById('lvList');
   box.innerHTML = '';
   const list = myLevels();
@@ -2243,91 +2380,136 @@ function buildMyLevels() {
 
 /* Search asks the server, so it finds everybody's published levels, not just
    the ones sitting on this machine. */
+const SEARCH = { diff: 0 };
+
+function buildDiffFilter() {
+  const box = document.getElementById('sqDiff');
+  box.innerHTML = '';
+  const mk = (label, d, u) => {
+    const on = SEARCH.diff === d;
+    if (u) {
+      const im = document.createElement('img');
+      im.src = u;
+      im.style.cssText = 'height:32px;width:auto;cursor:pointer;border-radius:6px;padding:1px;' +
+        'opacity:' + (on ? '1' : '0.35') + ';outline:' + (on ? '2px solid #ffd23f' : 'none');
+      im.title = 'difficulty ' + d;
+      im.addEventListener('click', () => { SEARCH.diff = on ? 0 : d; buildDiffFilter(); buildSearch(); });
+      box.appendChild(im);
+    } else {
+      const b = document.createElement('button');
+      b.className = 'tool' + (on ? ' on' : '');
+      b.style.padding = '6px 10px';
+      b.innerHTML = '<span>' + label + '</span>';
+      b.addEventListener('click', () => { SEARCH.diff = d; buildDiffFilter(); buildSearch(); });
+      box.appendChild(b);
+    }
+  };
+  mk('ANY', 0, null);
+  for (let i = 1; i <= 10; i++) mk('', i, artURL('diff' + String(i).padStart(2, '0')));
+}
+
+/* One level, on its own page: play it, like it, see how it is doing. */
+function openLevelInfo(info, local) {
+  state = 'levelinfo'; show('levelinfo');
+  LI.info = info; LI.local = local || null;
+  const face = document.getElementById('liFace');
+  const u = artURL('diff' + String(info.diff || 1).padStart(2, '0'));
+  if (u) { face.src = u; face.style.display = ''; } else face.style.display = 'none';
+  document.getElementById('liName').textContent = info.name || 'Untitled';
+  document.getElementById('liAuthor').textContent =
+    (local ? 'made by you' : 'by ' + (info.author || 'someone')) + '   ·   ' + info.id;
+  document.getElementById('liPlays').textContent = info.plays === undefined ? '-' : info.plays;
+  document.getElementById('liLikes').textContent = info.likes === undefined ? '-' : info.likes;
+  document.getElementById('liLen').textContent = (info.secs || 30) + 's';
+  document.getElementById('liEdit').style.display = local ? '' : 'none';
+  document.getElementById('liNote').textContent = '';
+}
+const LI = { info:null, local:null };
+
 function buildSearch() {
   const box = document.getElementById('sqList');
   const note = document.getElementById('sqNote');
   const q = (document.getElementById('sqInput').value || '').trim();
   box.innerHTML = '';
 
+  // Your own levels always show, published or not. Looking for a level you
+  // just made and being told it does not exist is nonsense.
+  const mine = myLevels().filter(l => !q ||
+    (l.name || '').toUpperCase().indexOf(q.toUpperCase()) >= 0 ||
+    (l.id || '').toUpperCase().indexOf(q.toUpperCase()) >= 0);
+
+  const localMatches = mine.filter(l => !SEARCH.diff || (l.diff || 1) === SEARCH.diff);
+
+  // One row per level. A level you published exists both here and on the
+  // server; showing both was listing the same thing twice.
+  const render = remote => {
+    box.innerHTML = '';
+    const byId = new Map();
+    localMatches.forEach(l => byId.set(l.id, {
+      info: { id:l.id, name:l.name, diff:l.diff || 1, secs:l.secs, author:'you',
+              plays:levelStats(l.id).plays, likes:levelStats(l.id).likes },
+      local: l
+    }));
+    (remote || []).forEach(m => {
+      const had = byId.get(m.id);
+      if (had) {                         // same level, now with the server's numbers
+        had.info.plays = m.plays;
+        had.info.likes = m.likes;
+        had.info.diff = m.diff || had.info.diff;
+        if (had.local) had.local.published = true;
+      } else {
+        byId.set(m.id, { info: m, local: null });
+      }
+    });
+    const rows = [...byId.values()];
+    if (!rows.length) {
+      box.appendChild(emptyRow(q ? 'Nothing matches "' + q + '"' : 'No levels yet'));
+    } else {
+      rows.forEach(r => box.appendChild(browseRow(r.info, r.local)));
+    }
+    return rows.length;
+  };
+
   if (!LIKES_API) {
-    note.textContent = 'No server running - only your own levels are searchable';
-    const local = myLevels().filter(l => !q ||
-      (l.name || '').toUpperCase().indexOf(q.toUpperCase()) >= 0 ||
-      (l.id || '').toUpperCase().indexOf(q.toUpperCase()) >= 0);
-    if (!local.length) box.appendChild(emptyRow(q ? 'Nothing matches "' + q + '"' : 'Your levels appear here'));
-    else local.forEach(l => box.appendChild(levelRow(l, { edit:false, refresh:buildSearch })));
+    const n = render(null);
+    note.textContent = n + ' level' + (n === 1 ? '' : 's');
     return;
   }
 
+  // Paint your own levels straight away, then fold in the server's when it
+  // answers. Waiting on the network to show levels already on this device
+  // left the list blank for as long as the server took.
+  render(null);
   note.textContent = 'Searching...';
-  box.appendChild(emptyRow('Looking through published levels...'));
-  apiGet('/levels?q=' + encodeURIComponent(q))
+  apiGet('/levels?q=' + encodeURIComponent(q) + '&diff=' + SEARCH.diff)
     .then(d => {
-      box.innerHTML = '';
-      const list = (d && d.levels) || [];
-      note.textContent = list.length
-        ? list.length + ' published level' + (list.length === 1 ? '' : 's') + ' - search by name, id or author'
-        : '';
-      if (!list.length) {
-        box.appendChild(emptyRow(q ? 'Nobody has published anything matching "' + q + '"'
-                                   : 'No levels published yet - be the first'));
-        return;
-      }
-      list.forEach(meta2 => box.appendChild(onlineRow(meta2)));
+      const n = render((d && d.levels) || []);
+      note.textContent = n + ' level' + (n === 1 ? '' : 's');
+      store();
     })
     .catch(() => {
-      box.innerHTML = '';
-      note.textContent = 'Could not reach the server';
-      box.appendChild(emptyRow('Server not responding - start it with: node server/server.js 8790'));
+      const n = render(null);
+      note.textContent = n ? n + ' level' + (n === 1 ? '' : 's') + ' - server unreachable'
+                           : 'Could not reach the server';
     });
 }
 
-/* A published level: fetched on demand, since the list only carries a summary. */
-function onlineRow(m) {
+/* A row in the browser. Clicking it opens the level's own page. */
+function browseRow(info, local) {
   const row = document.createElement('div');
   row.className = 'lvRow';
+  row.style.cssText = 'grid-template-columns:38px 1fr 64px;cursor:pointer';
+  const face = artURL('diff' + String(info.diff || 1).padStart(2, '0'));
   row.innerHTML =
-    '<div class="ln">' + m.name +
-    '<div class="li">' + m.id + '  &middot;  by ' + m.author + '  &middot;  ' +
-    m.objects + ' objects  &middot;  ' + m.plays + ' plays  &middot;  ' + m.likes + ' likes</div></div>';
-  const mk = (label, fn) => {
-    const b = document.createElement('button');
-    b.textContent = label;
-    b.addEventListener('click', fn);
-    return b;
-  };
-  row.appendChild(mk('Play', () => {
-    apiGet('/level?id=' + encodeURIComponent(m.id) +
-           '&uid=' + encodeURIComponent((account() || {}).uid || ''))
-      .then(d => {
-        if (!d || !d.level) throw new Error('missing');
-        apiPost('/play', { level:m.id }).catch(() => {});
-        startCustom(d.level, 'search');
-      })
-      .catch(() => achievement('COULD NOT LOAD', m.name, undefined));
-  }));
-  row.appendChild(mk('Like', () => {
-    if (!signedIn()) { openAccount('settings');
-      document.getElementById('accNote').textContent = 'Sign in to like levels'; return; }
-    apiPost('/like', authBody({ level:m.id }))
-      .then(() => { achievement('LIKED', m.name, undefined); buildSearch(); })
-      .catch(e => achievement('COULD NOT LIKE', e.message, undefined));
-  }));
-  row.appendChild(mk('Save', () => {
-    apiGet('/level?id=' + encodeURIComponent(m.id))
-      .then(d => {
-        if (!d || !d.level) throw new Error('missing');
-        const copy = JSON.parse(JSON.stringify(d.level));
-        copy.id = null;
-        copy.name = (copy.name || 'Level') + ' (copy)';
-        myLevels().push(Object.assign(copy, { id:newId(), made:Date.now() }));
-        store();
-        achievement('SAVED TO MY LEVELS', copy.name, undefined);
-      })
-      .catch(() => achievement('COULD NOT SAVE', m.name, undefined));
-  }));
+    (face ? '<img src="' + face + '" style="height:30px;width:auto">' : '<div></div>') +
+    '<div class="ln">' + (info.name || 'Untitled') +
+    '<div class="li">' + (local ? 'you' : info.author) + '  &middot;  ' + info.id +
+    '  &middot;  ' + (info.plays || 0) + ' plays  &middot;  ' + (info.likes || 0) + ' likes</div></div>' +
+    '<div class="li" style="text-align:right">' + (info.secs || 30) + 's</div>';
+  row.addEventListener('click', () => openLevelInfo(info, local));
   return row;
 }
+
 
 /* ---------- perk draft ---------- */
 function offerPerks() {
@@ -2605,7 +2787,7 @@ document.getElementById('onCreate').addEventListener('click', () => {
   state = 'mylevels'; show('mylevels'); buildMyLevels();
 });
 document.getElementById('onSearch').addEventListener('click', () => {
-  state = 'search'; show('search'); buildSearch();
+  state = 'search'; show('search'); buildDiffFilter(); buildSearch();
 });
 document.getElementById('onDaily').addEventListener('click', openDaily);
 document.getElementById('onEndless').addEventListener('click', startEndless);
@@ -2642,17 +2824,60 @@ document.getElementById('vaultInput').addEventListener('keydown', e => {
 document.getElementById('lvBack').addEventListener('click', toOnline);
 document.getElementById('lvNew').addEventListener('click', () => openEditor(null));
 document.getElementById('sqBack').addEventListener('click', toOnline);
+
+document.getElementById('liBack').addEventListener('click', () => {
+  state = 'search'; show('search'); buildSearch();
+});
+document.getElementById('liEdit').addEventListener('click', () => {
+  if (LI.local) openEditor(JSON.parse(JSON.stringify(LI.local)));
+});
+document.getElementById('liPlay').addEventListener('click', () => {
+  if (LI.local) { bumpPlay(LI.local.id); startCustom(JSON.parse(JSON.stringify(LI.local)), 'search'); return; }
+  const note = document.getElementById('liNote');
+  note.textContent = 'Loading...';
+  apiGet('/level?id=' + encodeURIComponent(LI.info.id) +
+         '&uid=' + encodeURIComponent((account() || {}).uid || ''))
+    .then(d => {
+      if (!d || !d.level) throw new Error('missing');
+      apiPost('/play', { level:LI.info.id }).catch(() => {});
+      startCustom(d.level, 'search');
+    })
+    .catch(() => { note.textContent = 'Could not load that level'; });
+});
+document.getElementById('liLike').addEventListener('click', () => {
+  const note = document.getElementById('liNote');
+  if (LI.local) {
+    likeLevel(LI.local.id);
+    LI.info.likes = levelStats(LI.local.id).likes;
+    document.getElementById('liLikes').textContent = LI.info.likes;
+    note.textContent = 'Liked';
+    return;
+  }
+  if (!signedIn()) { openAccount('settings');
+    document.getElementById('accNote').textContent = 'Sign in to like levels'; return; }
+  note.textContent = 'Liking...';
+  apiPost('/like', authBody({ level:LI.info.id }))
+    .then(d => {
+      LI.info.likes = d.likes;
+      document.getElementById('liLikes').textContent = d.likes;
+      note.textContent = 'Liked';
+      play('best'); buzz(20);
+    })
+    .catch(e => { note.textContent = e.message; });
+});
 document.getElementById('sqGo').addEventListener('click', buildSearch);
 document.getElementById('sqInput').addEventListener('input', buildSearch);
 
 /* ---- editor controls ---- */
 document.getElementById('edBack').addEventListener('click', () => {
+  stopMusic();                               // the preview never follows you out
   edSave();                                  // never lose work on the way out
   state = 'mylevels'; show('mylevels'); buildMyLevels();
 });
 document.getElementById('edSave').addEventListener('click', edSave);
 document.getElementById('edUndo').addEventListener('click', edUndo);
 document.getElementById('edTest').addEventListener('click', () => {
+  stopMusic();                                // stop the preview before the real thing
   edSave();                                   // never lose the level to a test run
   startCustom(JSON.parse(JSON.stringify(edCollect())), 'editor');
 });
@@ -2930,7 +3155,7 @@ function startCustom(lv, from) {
   rebuildLevelArt(L);
   state = 'play'; show(null);
   touchWrap.classList.toggle('on', isTouch);
-  playMusic(L.music, true);
+  playMusic(L.music, true, { start:L.mStart, rate:L.mRate });
 }
 
 function endlessCfg() {
@@ -4287,6 +4512,9 @@ if (window.__DTS_TEST) window.__dts = {
   power: { POWERS, POWER_BY, spawnDrop, slowMul },
   perkApi: { PERKS, offerPerks, takePerk, perk, moveMul, coinMul, fallMul, playerBox },
   bossApi: { getBoss: () => boss, BOSSES, BOSS_CUBE, startBossPhase },
+  musApi: { getKey: () => MUS.key, getStart: () => MUS.start, getRate: () => MUS.rate,
+            playMusic, stopMusic, buildSong },
+  browse: { SEARCH, buildSearch, buildDiffFilter, openLevelInfo, LI },
   build: { startCustom, getSaws: () => saws, spawnObject, openEditor, edPlace, edSave,
            ED, myLevels, blankLevel, buildMyLevels, buildSearch, edCollect, levelStats }
 };
