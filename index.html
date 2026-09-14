@@ -970,9 +970,10 @@ addEventListener('keydown', armAudio);
 const MUSIC_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
                     || location.protocol === 'file:';
 // your own tracks win; GD's are only the fallback
-function srcOf(f) {
-  if (f.indexOf('gd:') === 0) return 'assets-local/music/' + f.slice(3);
-  return (MUSIC_LOCAL ? 'music/' : 'music/web/') + f;   // web/ holds the smaller copies
+function srcOf(f) {                                     // web/ holds the smaller copies
+  if (f.indexOf('gd:') === 0)
+    return (MUSIC_LOCAL ? 'assets-local/music/' : 'music/web/gd/') + f.slice(3);
+  return (MUSIC_LOCAL ? 'music/' : 'music/web/') + f;
 }
 function trackFor(key) {
   const c = window.CUSTOM_MUSIC && window.CUSTOM_MUSIC[key];
