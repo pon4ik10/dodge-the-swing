@@ -296,6 +296,7 @@
       <button class="btn ghost" id="homeCredits">Credits</button>
     </div>
     <div class="row">
+      <button class="btn" id="homeShare">Share</button>
       <button class="btn" id="homeInstall" style="display:none">Install App</button>
     </div>
     <div class="sub" id="installHint" style="display:none;max-width:320px"></div>
@@ -506,6 +507,20 @@
     <div class="recTable" id="credMusic"></div>
     <div class="recTable" id="credOther" style="margin-top:10px"></div>
     <button class="btn ghost" id="credBack" style="margin-top:10px">Back</button>
+  </div>
+
+  <!-- ================= share ================= -->
+  <div id="scr-share" class="screen hidden" style="justify-content:center;gap:12px">
+    <div class="title gdtext" style="font-size:clamp(22px,5vw,38px)">Share</div>
+    <div class="sub" style="max-width:340px">Point a phone camera at this. Nothing to install - it just opens.</div>
+    <canvas id="shareQR" width="330" height="330"
+            style="background:#fff;border-radius:12px;max-width:74vw;height:auto;image-rendering:pixelated"></canvas>
+    <div class="sub" id="shareUrl" style="word-break:break-all;max-width:340px;opacity:.85"></div>
+    <div class="row">
+      <button class="btn" id="shareSend">Send Link</button>
+      <button class="btn ghost" id="shareCopy">Copy Link</button>
+    </div>
+    <button class="btn ghost" id="shareBack">Back</button>
   </div>
 
   <!-- ================= level select ================= -->
@@ -1262,6 +1277,7 @@ const screens = {
   account:  document.getElementById('scr-account'),
   perks:    document.getElementById('scr-perks'),
   complete: document.getElementById('scr-complete'),
+  share:    document.getElementById('scr-share'),
 };
 function show(which) {
   Object.keys(screens).forEach(k => screens[k].classList.toggle('hidden', k !== which));
@@ -2736,6 +2752,232 @@ function buildCredits() {
   (window.EXTRA_CREDITS || []).forEach(c => o.appendChild(row(c.what, c.who)));
 }
 
+/* A QR code, built here rather than pulled from a library, so it works with no
+   signal and inside the packaged app. Byte mode, error level M, smallest
+   version that fits. Enough for a link, which is all it ever encodes. */
+function qrMatrix(text) {
+  const data = [];
+  for (const ch of unescape(encodeURIComponent(text))) data.push(ch.charCodeAt(0));
+
+  // capacity of byte mode at error level M, versions 1..10
+  const CAP  = [0,14,26,42,62,84,106,122,152,180,213];
+  const TOTAL= [0,26,44,70,100,134,172,196,242,292,346];   // total codewords
+  const ECW  = [0,10,16,26,18,24,16,18,22,22,26];          // ec codewords per block
+  const BLK  = [0,1,1,1,2,2,4,4,4,5,5];                    // error-correction blocks
+  const ALIGN= [[],[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50]];
+
+  let ver = 0;
+  for (let v = 1; v <= 10; v++) if (data.length <= CAP[v]) { ver = v; break; }
+  if (!ver) throw new Error('too long for this encoder');
+
+  const size = 17 + ver * 4;
+  const totalCw = TOTAL[ver], ecPer = ECW[ver], blocks = BLK[ver];
+  const dataCw = totalCw - ecPer * blocks;
+
+  /* ---- bit stream: mode 0100, length, data, terminator, pad ---- */
+  const bits = [];
+  const push = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+  push(4, 4);
+  push(data.length, ver < 10 ? 8 : 16);
+  data.forEach(b => push(b, 8));
+  for (let i = 0; i < 4 && bits.length < dataCw * 8; i++) bits.push(0);
+  while (bits.length % 8) bits.push(0);
+  const cw = [];
+  for (let i = 0; i < bits.length; i += 8) cw.push(parseInt(bits.slice(i, i + 8).join(''), 2));
+  const PAD = [0xEC, 0x11];
+  for (let i = 0; cw.length < dataCw; i++) cw.push(PAD[i % 2]);
+
+  /* ---- Reed-Solomon over GF(256) ---- */
+  const EXP = new Array(512), LOG = new Array(256);
+  for (let i = 0, x = 1; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11D; }
+  for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  const mul = (a, b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+
+  let gen = [1];
+  for (let i = 0; i < ecPer; i++) {
+    const next = new Array(gen.length + 1).fill(0);
+    for (let j = 0; j < gen.length; j++) {
+      next[j] ^= gen[j];
+      next[j + 1] ^= mul(gen[j], EXP[i]);
+    }
+    gen = next;
+  }
+  const ecOf = block => {
+    const rem = block.concat(new Array(ecPer).fill(0));
+    for (let i = 0; i < block.length; i++) {
+      const f = rem[i];
+      if (!f) continue;
+      for (let j = 0; j < gen.length; j++) rem[i + j] ^= mul(gen[j], f);
+    }
+    return rem.slice(block.length);
+  };
+
+  // split into blocks, interleave data then ec
+  const per = Math.floor(dataCw / blocks), extra = dataCw % blocks;
+  const dBlocks = [], eBlocks = [];
+  let at = 0;
+  for (let b = 0; b < blocks; b++) {
+    const n = per + (b >= blocks - extra ? 1 : 0);
+    const blk = cw.slice(at, at + n); at += n;
+    dBlocks.push(blk); eBlocks.push(ecOf(blk));
+  }
+  const out = [];
+  for (let i = 0; i < Math.max(...dBlocks.map(b => b.length)); i++)
+    dBlocks.forEach(b => { if (i < b.length) out.push(b[i]); });
+  for (let i = 0; i < ecPer; i++) eBlocks.forEach(b => out.push(b[i]));
+
+  /* ---- lay out the grid ---- */
+  const m = Array.from({ length: size }, () => new Array(size).fill(null));
+  // function patterns are structure, not payload: masking them destroys the
+  // finder squares and nothing can read the code
+  const fixed = Array.from({ length: size }, () => new Array(size).fill(false));
+  const set = (r, c, v) => {
+    if (r < 0 || r >= size || c < 0 || c >= size) return;
+    m[r][c] = v; fixed[r][c] = true;
+  };
+
+  const finder = (r, c) => {
+    for (let i = -1; i <= 7; i++) for (let j = -1; j <= 7; j++) {
+      const on = (i >= 0 && i <= 6 && (j === 0 || j === 6)) ||
+                 (j >= 0 && j <= 6 && (i === 0 || i === 6)) ||
+                 (i >= 2 && i <= 4 && j >= 2 && j <= 4);
+      set(r + i, c + j, on ? 1 : 0);
+    }
+  };
+  finder(0, 0); finder(0, size - 7); finder(size - 7, 0);
+
+  for (let i = 8; i < size - 8; i++) {           // timing
+    const v = i % 2 === 0 ? 1 : 0;
+    if (m[6][i] === null) set(6, i, v);
+    if (m[i][6] === null) set(i, 6, v);
+  }
+  for (const r of ALIGN[ver]) for (const c of ALIGN[ver]) {   // alignment
+    if (m[r][c] !== null) continue;
+    for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++)
+      set(r + i, c + j, (Math.abs(i) === 2 || Math.abs(j) === 2 || (i === 0 && j === 0)) ? 1 : 0);
+  }
+  set(size - 8, 8, 1);                            // always-dark module
+
+  // Version 7 and up carry an 18-bit version block in two corners. Leaving it
+  // out does not just omit information - the data would be written over that
+  // area instead, shifting everything after it.
+  if (ver >= 7) {
+    let v = ver << 12, d = ver << 12;
+    for (let i = 5; i >= 0; i--) if (d & (1 << (i + 12))) d ^= 0x1F25 << i;
+    v |= (d & 0xFFF);
+    for (let i = 0; i < 18; i++) {
+      const bit = (v >> i) & 1;
+      const a = Math.floor(i / 3), b = size - 11 + (i % 3);
+      set(a, b, bit);
+      set(b, a, bit);
+    }
+  }
+
+  // reserve format areas
+  const reserved = [];
+  for (let i = 0; i < 9; i++) { reserved.push([8, i], [i, 8]); }
+  for (let i = 0; i < 8; i++) { reserved.push([8, size - 1 - i], [size - 1 - i, 8]); }
+  reserved.forEach(([r, c]) => { if (!fixed[r][c]) { m[r][c] = 0; fixed[r][c] = true; } });
+
+  // zigzag the data in
+  let bi = 0;
+  const bitAt = i => (i >> 3) < out.length ? (out[i >> 3] >> (7 - (i & 7))) & 1 : 0;
+  for (let col = size - 1; col > 0; col -= 2) {
+    if (col === 6) col--;
+    for (let k = 0; k < size; k++) {
+      const up = ((size - 1 - col) >> 1) % 2 === 0;
+      const row = up ? size - 1 - k : k;
+      for (const c of [col, col - 1]) if (!fixed[row][c] && m[row][c] === null) m[row][c] = bitAt(bi++);
+    }
+  }
+
+  /* ---- mask, then score, keeping the best as the spec says ---- */
+  const MASKS = [
+    (r, c) => (r + c) % 2 === 0,          (r, c) => r % 2 === 0,
+    (r, c) => c % 3 === 0,                (r, c) => (r + c) % 3 === 0,
+    (r, c) => (((r >> 1) + Math.floor(c / 3)) % 2) === 0,
+    (r, c) => ((r * c) % 2 + (r * c) % 3) === 0,
+    (r, c) => (((r * c) % 2 + (r * c) % 3) % 2) === 0,
+    (r, c) => (((r + c) % 2 + (r * c) % 3) % 2) === 0,
+  ];
+  const FMT = 0b00;   // error level M (L=01, M=00, Q=11, H=10)
+  const fmtBits = mask => {
+    let v = (FMT << 3) | mask, d = v << 10;
+    for (let i = 4; i >= 0; i--) if (d & (1 << (i + 10))) d ^= 0b10100110111 << i;
+    return ((v << 10) | d) ^ 0b101010000010010;
+  };
+
+  let best = null, bestScore = Infinity;
+  for (let mk = 0; mk < 8; mk++) {
+    const g = m.map(row => row.slice());
+    for (let r = 0; r < size; r++) for (let c = 0; c < size; c++)
+      if (!fixed[r][c] && MASKS[mk](r, c)) g[r][c] ^= 1;
+    const f = fmtBits(mk);
+    // The 15 format modules sit in two copies at fixed spots, most significant
+    // bit first. Writing them the other way round, or letting the second copy
+    // run over the always-dark module at (size-8, 8), makes the code unreadable
+    // while still looking perfectly QR-shaped.
+    const COPY1 = [[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],
+                   [7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
+    const COPY2 = [[size-1,8],[size-2,8],[size-3,8],[size-4,8],[size-5,8],[size-6,8],[size-7,8],
+                   [8,size-8],[8,size-7],[8,size-6],[8,size-5],[8,size-4],[8,size-3],[8,size-2],[8,size-1]];
+    for (let i = 0; i < 15; i++) {
+      const bit = (f >> (14 - i)) & 1;
+      g[COPY1[i][0]][COPY1[i][1]] = bit;
+      g[COPY2[i][0]][COPY2[i][1]] = bit;
+    }
+    // penalty: runs, blocks, and too much/little dark
+    let s = 0;
+    const runs = line => { let run = 1, p = 0;
+      for (let i = 1; i < line.length; i++) {
+        if (line[i] === line[i - 1]) { run++; if (run === 5) p += 3; else if (run > 5) p++; }
+        else run = 1;
+      } return p; };
+    const FINDERISH = [[1,0,1,1,1,0,1,0,0,0,0], [0,0,0,0,1,0,1,1,1,0,1]];
+    const finderish = line => {
+      let p = 0;
+      for (let i = 0; i + 11 <= line.length; i++)
+        for (const pat of FINDERISH)
+          if (pat.every((v, j) => line[i + j] === v)) p += 40;
+      return p;
+    };
+    for (let r = 0; r < size; r++) s += runs(g[r]) + finderish(g[r]);
+    for (let c = 0; c < size; c++) {
+      const col = g.map(row => row[c]);
+      s += runs(col) + finderish(col);
+    }
+    for (let r = 0; r < size - 1; r++) for (let c = 0; c < size - 1; c++)
+      if (g[r][c] === g[r][c+1] && g[r][c] === g[r+1][c] && g[r][c] === g[r+1][c+1]) s += 3;
+    const dark = g.flat().filter(v => v === 1).length;
+    s += Math.floor(Math.abs(dark * 100 / (size * size) - 50) / 5) * 10;
+    if (s < bestScore) { bestScore = s; best = g; }
+  }
+  return best;
+}
+
+/* The link people scan or send. Always the public site - a QR pointing at
+   localhost is no use to anybody. */
+const SHARE_URL = 'https://pon4ik10.github.io/dodge-the-swing/';
+
+function drawQR(cv, text) {
+  const m = qrMatrix(text), n = m.length, quiet = 4;
+  const px = Math.max(1, Math.floor(cv.width / (n + quiet * 2)));
+  const span = px * (n + quiet * 2), off = Math.floor((cv.width - span) / 2);
+  const x = cv.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, cv.width, cv.height);
+  x.fillStyle = '#000';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+    if (m[r][c]) x.fillRect(off + (c + quiet) * px, off + (r + quiet) * px, px, px);
+}
+
+function buildShare() {
+  document.getElementById('shareUrl').textContent = SHARE_URL;
+  try { drawQR(document.getElementById('shareQR'), SHARE_URL); }
+  catch (e) { document.getElementById('shareQR').style.display = 'none'; }
+  // the phone's own share sheet if there is one, otherwise just the copy button
+  document.getElementById('shareSend').style.display = navigator.share ? '' : 'none';
+}
+
 /* ---------- icon kit ---------- */
 function drawIconTo(cv, icon, pad) {
   const x = cv.getContext('2d');
@@ -2832,6 +3074,24 @@ document.getElementById('homeCredits').addEventListener('click', () => {
   state = 'credits'; show('credits'); buildCredits();
 });
 document.getElementById('credBack').addEventListener('click', toHome);
+
+document.getElementById('homeShare').addEventListener('click', () => {
+  state = 'share'; show('share'); buildShare();
+});
+document.getElementById('shareBack').addEventListener('click', toHome);
+document.getElementById('shareSend').addEventListener('click', () => {
+  if (!navigator.share) return;
+  navigator.share({ title: 'Dodge the Swing', text: 'Play Dodge the Swing', url: SHARE_URL })
+    .catch(() => {});                       // cancelling the sheet is not an error
+});
+document.getElementById('shareCopy').addEventListener('click', () => {
+  const btn = document.getElementById('shareCopy');
+  const done = ok => { btn.textContent = ok ? 'Copied!' : 'Press and hold the link';
+                       setTimeout(() => { btn.textContent = 'Copy Link'; }, 1600); };
+  if (navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(SHARE_URL).then(() => done(true)).catch(() => done(false));
+  else done(false);
+});
 document.getElementById('vaultDot').addEventListener('click', () => {
   state = 'vault'; show('vault'); buildVault();
   document.getElementById('vaultMsg').textContent = '';
