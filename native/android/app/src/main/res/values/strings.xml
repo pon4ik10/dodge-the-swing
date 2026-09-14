@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Dodge the Swing</string>
+    <string name="title_activity_main">Dodge the Swing</string>
+    <string name="package_name">com.temudash.dodgetheswing</string>
+    <string name="custom_url_scheme">com.temudash.dodgetheswing</string>
+</resources>
