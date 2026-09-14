@@ -1,5 +1,9 @@
 /* Soundtrack + credits.
  *
+ * pub:true  -> the artist cleared this track for redistribution, so it ships
+ *              with the public site (from music/web/, a smaller 128k copy).
+ *              Everything without it stays on this machine only.
+ *
  * Every slot must point at a file that exists or it plays silence - run
  * python3 tools/check_music.py to verify.
  *
@@ -10,14 +14,14 @@ window.CUSTOM_MUSIC = {
   menu:    { file:'chopin-nocturne.mp3',          title:'Nocturne Op. 9 No. 2',   by:'Frederic Chopin (public domain work)' },
   lvl1:    { file:'gd:BackOnTrack.mp3',           title:'Back On Track',          by:'DJVI' },
   lvl2:    { file:'gd:Polargeist.mp3',            title:'Polargeist',             by:'Step' },
-  lvl3:    { file:'the-disturbance.mp3',          title:'The Disturbance',        by:'Newgrounds 898361' },
-  lvl4:    { file:'spaceship.mp3',                title:'SpaceShip GD',           by:'Newgrounds artist (727419)' },
-  lvl5:    { file:'axel-f-remix.mp3',             title:'Axel F Remix',           by:'Newgrounds artist (798782)' },
+  lvl3:    { file:'the-disturbance.mp3',          title:'The Disturbance',        by:'Newgrounds artist', ng:898361, pub:true },
+  lvl4:    { file:'spaceship.mp3',                title:'SpaceShip GD',           by:'Newgrounds artist', ng:727419, pub:true },
+  lvl5:    { file:'axel-f-remix.mp3',             title:'Axel F Remix',           by:'Newgrounds remixer; "Axel F" written by Harold Faltermeyer', ng:798782, pub:true },
   lvl6:    { file:'gd:Clutterfunk.mp3',           title:'Clutterfunk',            by:'Waterflame' },
   lvl7:    { file:'gd:Electrodynamix.mp3',        title:'Electrodynamix',         by:'DJ-Nate' },
   lvl8:    { file:'gd:Clubstep.mp3',              title:'Clubstep',               by:'DJ-Nate' },
   lvl9:    { file:'at-the-speed-of-light.mp3',     title:'At the Speed of Light',  by:'Dimrain47' },
-  lvl10:   { file:'shiawase-vip.mp3',             title:'Shiawase (Vip)',         by:'supplied by the player' },
+  lvl10:   { file:'shiawase-vip.mp3',             title:'Shiawase (Vip)',         by:'Diane Timmer', pub:true },
   daily:   { file:'gd:HexagonForce.mp3',          title:'Hexagon Force',          by:'Waterflame' },
   // Endless rotates its look and track every attempt
   endless1:{ file:'gd:Fingerdash.mp3',            title:'Fingerdash',             by:'MDK' },
@@ -45,4 +49,5 @@ window.EXTRA_CREDITS = [
   { what:'Swingcopter',  who:'Geometry Dash - RobTop Games' },
   { what:'Code & levels',who:'this project' },
   { what:'Note',         who:'Personal build. Art and music belong to their creators.' },
+  { what:'Music online',  who:'Only tracks whose artists allow reuse are on the public site. The rest play locally.' },
 ];

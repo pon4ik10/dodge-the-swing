@@ -6,6 +6,9 @@
 assets-local/music/
 music/*.mp3
 
+# ...except the artist-cleared copies, which do ship with the public site.
+!music/web/
+
 # local like-server data
 server/stats.json
 

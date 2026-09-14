@@ -964,12 +964,19 @@ function armAudio() {
 }
 addEventListener('pointerdown', armAudio);
 addEventListener('keydown', armAudio);
+// Running from this machine, every track is on disk. On the public site only
+// the ones their artists cleared are there, so the rest simply do not exist -
+// better silence than a level card naming a song that cannot play.
+const MUSIC_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+                    || location.protocol === 'file:';
 // your own tracks win; GD's are only the fallback
 function srcOf(f) {
-  return f.indexOf('gd:') === 0 ? 'assets-local/music/' + f.slice(3) : 'music/' + f;
+  if (f.indexOf('gd:') === 0) return 'assets-local/music/' + f.slice(3);
+  return (MUSIC_LOCAL ? 'music/' : 'music/web/') + f;   // web/ holds the smaller copies
 }
 function trackFor(key) {
   const c = window.CUSTOM_MUSIC && window.CUSTOM_MUSIC[key];
+  if (c && !MUSIC_LOCAL && !c.pub) return null;
   if (c) return {
     src: srcOf(c.file),
     title: c.title || c.file.replace(/\.[^.]+$/, ''),
@@ -978,7 +985,7 @@ function trackFor(key) {
     alt: c.fallback ? srcOf(c.fallback) : '',
     altTitle: c.fallbackTitle || '', altBy: c.fallbackBy || ''
   };
-  const g = window.GD_MUSIC && window.GD_MUSIC[key];
+  const g = MUSIC_LOCAL && window.GD_MUSIC && window.GD_MUSIC[key];
   if (g) return { src: 'assets-local/music/' + g.file, title: g.title };
   return null;
 }
@@ -2706,7 +2713,13 @@ function buildCredits() {
     const t = trackFor(k);
     if (!t || seen[t.title]) return;
     seen[t.title] = 1;
-    m.appendChild(row(t.title, t.by || 'unknown'));
+    const c = window.CUSTOM_MUSIC[k] || {};
+    // link straight to the Newgrounds page so the artist is findable
+    const who = c.ng
+      ? '<a href="https://www.newgrounds.com/audio/listen/' + c.ng + '" target="_blank" rel="noopener">'
+        + (t.by || 'Newgrounds artist') + '</a>'
+      : (t.by || 'unknown');
+    m.appendChild(row(t.title, who));
   });
   const o = document.getElementById('credOther');
   o.innerHTML = '';
