@@ -5,4 +5,4 @@ compatibility_date = "2024-11-01"
 # wrangler kv namespace create STATS   ->  paste the id it prints here
 [[kv_namespaces]]
 binding = "STATS"
-id = "PASTE_YOUR_KV_ID_HERE"
+id = "5d75f9ab98b644b1a439c61fe8d40f11"

@@ -3214,7 +3214,7 @@ function dailyCfg() {
 const LIKES_API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1'
                    || location.protocol === 'file:')
   ? 'http://localhost:8790'      // the local server: node server/server.js 8790
-  : '';                          // paste your deployed Worker URL here to go public
+  : 'https://dodge-the-swing-stats.temudash.workers.dev';   // the live server
 
 function deviceId() {
   let id = null;
