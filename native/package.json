@@ -1,0 +1,16 @@
+{
+  "name": "dodge-the-swing-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android wrapper for Dodge the Swing",
+  "scripts": {
+    "bundle": "node ../tools/build_www.js",
+    "sync": "npm run bundle && cap sync android",
+    "apk": "npm run sync && cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2"
+  }
+}

@@ -964,11 +964,19 @@ function armAudio() {
 }
 addEventListener('pointerdown', armAudio);
 addEventListener('keydown', armAudio);
+/* The packaged Android app also runs on localhost, so the hostname alone
+   cannot tell "my dev machine" from "a phone". The native build sets this
+   flag, and it means: talk to the real server, use the bundled tracks. */
+const NATIVE = !!window.DTS_NATIVE;
+const LIVE_API = 'https://dodge-the-swing-stats.temudash.workers.dev';
+const DEV_BOX = !NATIVE && (location.hostname === 'localhost' ||
+                            location.hostname === '127.0.0.1' ||
+                            location.protocol === 'file:');
+
 // Running from this machine, every track is on disk. On the public site only
 // the ones their artists cleared are there, so the rest simply do not exist -
 // better silence than a level card naming a song that cannot play.
-const MUSIC_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-                    || location.protocol === 'file:';
+const MUSIC_LOCAL = DEV_BOX;
 // your own tracks win; GD's are only the fallback
 function srcOf(f) {                                     // web/ holds the smaller copies
   if (f.indexOf('gd:') === 0)
@@ -3225,10 +3233,9 @@ function dailyCfg() {
    Deploy server/worker.js (see server/README.md) and paste the URL here.
    Empty = no server, and the panel says so rather than inventing numbers.
    ============================================================ */
-const LIKES_API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-                   || location.protocol === 'file:')
+const LIKES_API = DEV_BOX
   ? 'http://localhost:8790'      // the local server: node server/server.js 8790
-  : 'https://dodge-the-swing-stats.temudash.workers.dev';   // the live server
+  : LIVE_API;
 
 function deviceId() {
   let id = null;
@@ -4539,7 +4546,8 @@ function updateInstallUI() {
   const btn = document.getElementById('homeInstall');
   const hint = document.getElementById('installHint');
   if (!btn || !hint) return;
-  const standalone = matchMedia('(display-mode: standalone)').matches ||
+  const standalone = NATIVE ||                       // already a real app
+                     matchMedia('(display-mode: standalone)').matches ||
                      window.navigator.standalone === true;
   if (standalone) { btn.style.display = 'none'; hint.style.display = 'none'; return; }
   if (installPrompt) {
@@ -4563,7 +4571,8 @@ addEventListener('beforeinstallprompt', e => {
 addEventListener('appinstalled', () => { installPrompt = null; updateInstallUI(); });
 
 // installable app: needs to be served over http(s) - see tools/serve.py
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+// The packaged Android app ships its own files, so it needs no offline cache.
+if (!NATIVE && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 addEventListener('orientationchange', () => setTimeout(resize, 120));

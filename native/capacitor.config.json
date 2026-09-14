@@ -1,0 +1,11 @@
+{
+  "appId": "com.temudash.dodgetheswing",
+  "appName": "Dodge the Swing",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
