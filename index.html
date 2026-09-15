@@ -268,7 +268,10 @@
     padding:6px 10px; border-radius:8px; cursor:pointer;
   }
 
-    /* ---- the editor on a short screen ----
+    #shareQR { background:#fff; border-radius:12px; width:min(330px,74vw); height:auto;
+             image-rendering:pixelated; }
+
+  /* ---- the editor on a short screen ----
      Eight stacked rows and a 46vh canvas do not coexist on a 360px-tall phone;
      the canvas ends up a sliver. Here the tool strips scroll sideways instead
      of wrapping, the labels go, and whatever height is left goes to the canvas
@@ -312,6 +315,12 @@
     .lvl .pct   { font-size:10px; height:12px; margin-top:3px; }
     .lvl .prize, .lvl .prize2 { width:20px; height:20px; }
     .recRow, .credRow, .secretRow { padding:5px 8px; font-size:11px; }
+    /* measured on a 780x360 screen: these two were the only screens left that
+       needed scrolling */
+    #shareQR { width:156px; }
+    #scr-share { gap:5px; }
+    #scr-settings { gap:5px; }
+    #scr-settings .setRow { padding:4px 8px; }
     .lvRow { padding:6px 8px; }
   }
   @media (max-width: 560px) { :root { --gdstroke:2.4px; --cardstroke:1.4px; } }
@@ -588,8 +597,7 @@
   <div id="scr-share" class="screen hidden" style="justify-content:center;gap:12px">
     <div class="title gdtext" style="font-size:clamp(22px,5vw,38px)">Share</div>
     <div class="sub" style="max-width:340px">Point a phone camera at this. Nothing to install - it just opens.</div>
-    <canvas id="shareQR" width="330" height="330"
-            style="background:#fff;border-radius:12px;max-width:74vw;height:auto;image-rendering:pixelated"></canvas>
+    <canvas id="shareQR" width="330" height="330"></canvas>
     <div class="sub" id="shareUrl" style="word-break:break-all;max-width:340px;opacity:.85"></div>
     <div class="row">
       <button class="btn" id="shareSend">Send Link</button>
