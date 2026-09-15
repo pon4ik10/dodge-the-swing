@@ -11,7 +11,7 @@ const FILE = process.env.DATA_FILE
   ? path.resolve(process.env.DATA_FILE)
   : path.join(__dirname, 'stats.json');
 
-let db = { acct: {}, names: {}, lvl: {}, meta: {}, liked: {} };
+let db = { acct: {}, names: {}, lvl: {}, meta: {}, liked: {}, score: {} };
 try { db = Object.assign(db, JSON.parse(fs.readFileSync(FILE, 'utf8'))); } catch (e) {}
 
 /* Keep the last few versions. Accounts and levels are irreplaceable - there is
@@ -157,6 +157,28 @@ http.createServer((req, res) => {
       if (db.liked[k]) return send(res, { ...m, liked: true });
       db.liked[k] = 1; m.likes++; db.meta[lid] = m; dirty = true;
       return send(res, { ...m, liked: true });
+    }
+    /* endless leaderboard: one row per player, their best run only */
+    if (p === '/score' && req.method === 'POST') {
+      const a = auth(body);
+      if (!a) return send(res, { error: 'Sign in to get on the leaderboard' }, 401);
+      const score = Math.max(0, Math.min(9999999, parseInt(body.score, 10) || 0));
+      const secs  = Math.max(0, Math.min(86400, parseInt(body.secs, 10) || 0));
+      const coins = Math.max(0, Math.min(99999, parseInt(body.coins, 10) || 0));
+      if (!score) return send(res, { error: 'score required' }, 400);
+      db.score = db.score || {};
+      const had = db.score[a.uid];
+      if (had && had.score >= score) return send(res, { ok: true, best: had.score, improved: false });
+      db.score[a.uid] = { uid: a.uid, name: a.name, score, secs, coins, when: Date.now() };
+      dirty = true;
+      return send(res, { ok: true, best: score, improved: true });
+    }
+    if (p === '/board') {
+      const out = Object.values(db.score || {})
+        .sort((x, y) => y.score - x.score || x.when - y.when)
+        .slice(0, 25)
+        .map(r => ({ name: r.name, score: r.score, secs: r.secs, coins: r.coins, uid: r.uid }));
+      return send(res, { board: out });
     }
     if (p === '/stats') {
       const lid = clean(url.searchParams.get('level'), 24);

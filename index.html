@@ -626,6 +626,9 @@
     <div class="sub">Your personal bests on every level.</div>
     <div class="totals" id="recTotals"></div>
     <div class="title gdtext" style="font-size:clamp(17px,3.6vw,25px);margin-top:8px">Endless Leaderboard</div>
+    <div class="sub" id="boardNote"></div>
+    <div class="recTable" id="worldTable"></div>
+    <div class="title gdtext" style="font-size:clamp(14px,3vw,19px);margin-top:6px">Your Runs</div>
     <div class="recTable" id="boardTable"></div>
     <div class="title gdtext" style="font-size:clamp(17px,3.6vw,25px);margin-top:8px">Levels</div>
     <div class="recTable" id="recTable"></div>
@@ -1616,6 +1619,7 @@ function buildLevelGrid() {
 
 /* ---------- records ---------- */
 function buildRecords() {
+  buildWorldBoard();
   buildBoard();
   const t = document.getElementById('recTable');
   t.innerHTML = '';
@@ -1716,6 +1720,49 @@ function redeem(raw) {
   store();
   if (fresh) achievement('SECRET FOUND', code, c.cube);
   return { ok:true, msg:c.msg, cube:c.cube };
+}
+
+/* The leaderboard everyone shares. Your own runs are listed underneath, since
+   those are the ones you care about while you are chasing the board. */
+function buildWorldBoard() {
+  const b = document.getElementById('worldTable');
+  const note = document.getElementById('boardNote');
+  b.innerHTML = '';
+  const head = document.createElement('div');
+  head.className = 'recRow head';
+  head.innerHTML = '<div></div><div class="rl">PLAYER</div><div class="rp">SCORE</div>' +
+                   '<div class="rc">COINS</div><div class="ra">TIME</div>';
+  b.appendChild(head);
+  const row = (n, name, sc, coins, t, mine) => {
+    const d = document.createElement('div');
+    d.className = 'recRow' + (mine ? ' done' : '');
+    d.innerHTML = '<div class="rn">' + n + '</div><div class="rl">' + esc(name) + '</div>' +
+                  '<div class="rp">' + sc + '</div><div class="rc">' + coins + '</div>' +
+                  '<div class="ra">' + t + 's</div>';
+    b.appendChild(d);
+  };
+  if (!LIKES_API) { note.textContent = 'No server - your own runs only'; return; }
+  note.textContent = 'Loading...';
+  apiGet('/board')
+    .then(d => {
+      const list = (d && d.board) || [];
+      if (!list.length) { note.textContent = 'Nobody has set a score yet - be first'; return; }
+      const me = account();
+      note.textContent = list.length + ' player' + (list.length === 1 ? '' : 's');
+      list.forEach((r, i) => row(i + 1, r.name, r.score, r.coins, r.secs, me && r.uid === me.uid));
+      if (me && !list.some(r => r.uid === me.uid))
+        note.textContent += ' - play Endless while signed in to get on it';
+    })
+    .catch(() => { note.textContent = 'Could not reach the server'; });
+}
+
+/* Send a finished endless run up. Only your best is kept, so the board is one
+   row per player rather than somebody's twenty attempts. */
+function submitScore(score, secs, coins) {
+  if (!LIKES_API || !signedIn() || !score) return;
+  apiPost('/score', authBody({ score, secs, coins }))
+    .then(d => { if (d && d.improved) achievement('LEADERBOARD', 'Best posted: ' + score, undefined); })
+    .catch(() => {});
 }
 
 function buildBoard() {
@@ -2512,8 +2559,8 @@ function levelRow(l, opts) {
   row.className = 'lvRow';
   const st = levelStats(l.id);
   row.innerHTML =
-    '<div class="ln">' + (l.name || 'Untitled') +
-    '<div class="li">' + l.id + '  &middot;  ' + (l.obj || []).length + ' objects  &middot;  ' +
+    '<div class="ln">' + esc(l.name || 'Untitled') +
+    '<div class="li">' + esc(l.id) + '  &middot;  ' + (l.obj || []).length + ' objects  &middot;  ' +
     l.secs + 's  &middot;  ' + (l.published ? 'published' : 'not published') + '</div></div>';
   const mk = (label, fn) => {
     const b = document.createElement('button');
@@ -2552,6 +2599,16 @@ function emptyRow(msg) {
 }
 
 /* Plays and likes. Local until a server is configured - see server/README.md. */
+/* Anything typed by a person - a level name, a player name - goes through this
+   before it becomes HTML. The server strips markup out of what it stores, but
+   the page should not be relying on that, and names typed locally never went
+   near the server at all. */
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function levelStats(id) {
   if (!SAVE.lstats) SAVE.lstats = {};
   return SAVE.lstats[id] || { plays:0, likes:0, liked:false };
@@ -2709,8 +2766,8 @@ function browseRow(info, local) {
   const face = artURL('diff' + String(info.diff || 1).padStart(2, '0'));
   row.innerHTML =
     (face ? '<img src="' + face + '" style="height:30px;width:auto">' : '<div></div>') +
-    '<div class="ln">' + (info.name || 'Untitled') +
-    '<div class="li">' + (local ? 'you' : info.author) + '  &middot;  ' + info.id +
+    '<div class="ln">' + esc(info.name || 'Untitled') +
+    '<div class="li">' + (local ? 'you' : esc(info.author)) + '  &middot;  ' + esc(info.id) +
     '  &middot;  ' + (info.plays || 0) + ' plays  &middot;  ' + (info.likes || 0) + ' likes</div></div>' +
     '<div class="li" style="text-align:right">' + (info.secs || 30) + 's</div>';
   row.addEventListener('click', () => openLevelInfo(info, local));
@@ -3812,6 +3869,7 @@ function startDaily() {
 
 function endRun() {                                  // endless run is over
   const sc = escore();
+  submitScore(sc, Math.floor(run.t), run.ecoins);   // onto the shared board
   SAVE.board.push({ score:sc, t:Math.floor(run.t), coins:run.ecoins, date:todayKey() });
   SAVE.board.sort((a,b) => b.score - a.score);
   SAVE.board = SAVE.board.slice(0, 10);
@@ -5006,6 +5064,7 @@ if (window.__DTS_TEST) window.__dts = {
          snapshot, restoreSnap, step,
          setInput: (l, r, j) => { input.left = l; input.right = r; input.jump = j; },
          getInput: () => input,
+         submitScore, endRun, buildWorldBoard,
          tickOrientation: () => checkOrientation(),
          redeem, coinBank, CODES, palette, REWARDS, COIN_REWARDS, CUBE_DEF, defUnlocked, haveCube, achievement, syncCoinPrizes, DEV_TOOLS,
          setState: v => { state = v; } },

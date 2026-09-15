@@ -217,6 +217,37 @@ export default {
       return json({ ...m, liked: true });
     }
 
+    /* ---------------- endless leaderboard ----------------
+       One row per player, their best run only, so nobody can bury the board
+       under twenty of their own attempts. */
+    if (path === '/score' && request.method === 'POST') {
+      const acct = await auth(env, body);
+      if (!acct) return json({ error: 'Sign in to get on the leaderboard' }, 401);
+      const score = Math.max(0, Math.min(9999999, parseInt(body.score, 10) || 0));
+      const secs  = Math.max(0, Math.min(86400, parseInt(body.secs, 10) || 0));
+      const coins = Math.max(0, Math.min(99999, parseInt(body.coins, 10) || 0));
+      if (!score) return json({ error: 'score required' }, 400);
+      const key = 'score:' + acct.uid;
+      const prev = await env.STATS.get(key);
+      const had = prev ? JSON.parse(prev) : null;
+      if (had && had.score >= score) return json({ ok: true, best: had.score, improved: false });
+      const rec = { uid: acct.uid, name: acct.name, score, secs, coins, when: Date.now() };
+      await env.STATS.put(key, JSON.stringify(rec));
+      return json({ ok: true, best: score, improved: true });
+    }
+
+    if (path === '/board') {
+      const list = await env.STATS.list({ prefix: 'score:', limit: 300 });
+      const out = [];
+      for (const k of list.keys) {
+        const raw = await env.STATS.get(k.name);
+        if (raw) out.push(JSON.parse(raw));
+      }
+      out.sort((a, b) => b.score - a.score || a.when - b.when);
+      return json({ board: out.slice(0, 25).map(r => ({
+        name: r.name, score: r.score, secs: r.secs, coins: r.coins, uid: r.uid })) });
+    }
+
     /* the daily keeps its own counters, keyed daily-YYYY-MM-DD */
     if (path === '/stats') {
       const lid = clean(url.searchParams.get('level'), 24);
