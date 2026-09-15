@@ -328,6 +328,16 @@
     #scr-settings .setRow { padding:4px 8px; }
     .lvRow { padding:6px 8px; }
   }
+  /* Thumb-sized controls. A 16px-tall toggle and a 20px slider are fine under
+     a mouse pointer and close to untappable with a thumb. */
+  @media (hover: none), (orientation: landscape) and (max-height: 500px) {
+    .btn, .mini { min-height:32px; }
+    .setRow .tog { min-height:32px; }
+    .setRow input[type=range] { height:32px; }
+    #edSecs, #edTime { height:30px; }
+    #vaultDot { width:32px; height:32px; font-size:13px; }
+  }
+
   @media (max-width: 560px) { :root { --gdstroke:2.4px; --cardstroke:1.4px; } }
 
   /* phone notches and rounded corners */
