@@ -563,6 +563,9 @@
       <div class="setRow"><div class="sl">ACCOUNT</div>
         <button class="btn ghost tog" id="setAccount">Account</button>
         <div class="sv" id="setAccWho"></div></div>
+      <div class="setRow"><div class="sl">GAME VERSION</div>
+        <button class="btn ghost tog" id="setUpdate">Update</button>
+        <div class="sv" id="setUpdateV"></div></div>
     </div>
     <div class="sub" style="margin-top:10px">Turn shake off if the demons make you queasy.</div>
     <button class="btn ghost" id="setBack" style="margin-top:8px">Back</button>
@@ -2693,8 +2696,8 @@ function buildSearch() {
     })
     .catch(() => {
       const n = render(null);
-      note.textContent = n ? n + ' level' + (n === 1 ? '' : 's') + ' - server unreachable'
-                           : 'Could not reach the server';
+      note.textContent = n ? n + ' level' + (n === 1 ? '' : 's') + ' - only the ones on this device'
+                           : 'Could not reach the server - other people\'s levels are not loading';
     });
 }
 
@@ -3244,6 +3247,23 @@ document.getElementById('homeInstall').addEventListener('click', () => {
 document.getElementById('homeCredits').addEventListener('click', () => {
   state = 'credits'; show('credits'); buildCredits();
 });
+/* Force a stale copy to refresh. A phone that saved the game before it had a
+   server to talk to will happily keep showing an empty level list forever;
+   this throws away what is stored and fetches the current build. */
+document.getElementById('setUpdate').addEventListener('click', () => {
+  const v = document.getElementById('setUpdateV');
+  v.textContent = 'Updating...';
+  const done = () => location.reload();
+  const jobs = [];
+  if ('serviceWorker' in navigator)
+    jobs.push(navigator.serviceWorker.getRegistrations()
+      .then(rs => Promise.all(rs.map(r => r.unregister()))).catch(() => {}));
+  if (window.caches)
+    jobs.push(caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))).catch(() => {}));
+  Promise.all(jobs).then(done, done);
+  setTimeout(done, 2500);                 // never leave it stuck on "Updating..."
+});
+
 document.getElementById('credBack').addEventListener('click', toHome);
 
 document.getElementById('homeShare').addEventListener('click', () => {
@@ -5022,7 +5042,17 @@ addEventListener('appinstalled', () => { installPrompt = null; updateInstallUI()
 // installable app: needs to be served over http(s) - see tools/serve.py
 // The packaged Android app ships its own files, so it needs no offline cache.
 if (!NATIVE && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  // A copy pinned by the old cache-first worker could sit on a phone forever,
+  // including one saved before this game had a server to talk to - which looks
+  // exactly like "publishing is broken, nobody else sees my level". When a new
+  // worker takes over, reload once so the stale page is actually replaced.
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController && !window.__dtsReloading) { window.__dtsReloading = true; location.reload(); }
+  });
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    reg.update().catch(() => {});                 // check for a newer build on every open
+  }).catch(() => {});
 }
 addEventListener('orientationchange', () => setTimeout(resize, 120));
 

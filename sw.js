@@ -8,7 +8,7 @@
  *   - sprites, sounds and music are cache-first, since they never change and
  *     that is what makes the game work with no signal
  */
-const CACHE = 'dts-v2';
+const CACHE = 'dts-v3';   // bumped: drops anything the old cache-first worker pinned
 const CORE = ['./', 'index.html', 'manifest.json', 'assets-local/gd/frames.js'];
 const FRESH = /\.(html|json|js)$/;          // small, and changes when I push
 
