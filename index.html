@@ -4080,6 +4080,15 @@ function updatePortals() {
     if (!p.hit && p.x <= W/2) {          // crossing the middle applies it
       p.hit = true;
       const up = p.tier > run.tier;
+      // Everything already on screen changes pace too. Without this you flew
+      // through a 3x portal and nothing whatsoever appeared to happen.
+      const ratio = SPEEDS[p.tier] / run.speed;
+      copters.forEach(c => { c.vy *= ratio; });
+      spikes.forEach(o => { o.vx *= ratio; });
+      warnings.forEach(w => {            // less warning when it is faster
+        w.t = Math.max(0.28, w.t / ratio);
+        w.max = Math.max(0.28, w.max / ratio);
+      });
       run.tier = p.tier;
       run.speed = SPEEDS[p.tier];
       speedFx = { label: SPEED_LABEL[p.tier], up, t:1.5 };
@@ -4194,7 +4203,7 @@ function boxesHit(a, b) {
    ============================================================ */
 function step() {
   if (state === 'paused' || state === 'perks') return;
-  scroll += 2.6;
+  scroll += 2.6 * (state === 'play' || state === 'dying' ? run.speed : 1);
 
   if (state === 'dying') {
     deathTimer -= STEP;
@@ -4305,13 +4314,15 @@ function step() {
     else {
     run.spawnT -= STEP;
     if (run.spawnT <= 0) {
-      run.spawnT = lerp(L.cop[0], L.cop[1], d) * sr(0.85, 1.15);
+      // divided by the pace: a speed portal has to change how often things
+      // arrive, not just how fast the next one happens to fall
+      run.spawnT = lerp(L.cop[0], L.cop[1], d) * sr(0.85, 1.15) / run.speed;
       spawnCopter();
       if (srand() < L.burst) spawnCopter();
     }
     run.spikeT -= STEP;
     if (run.spikeT <= 0) {
-      run.spikeT = lerp(L.spk[0], L.spk[1], d) * sr(0.88, 1.12);
+      run.spikeT = lerp(L.spk[0], L.spk[1], d) * sr(0.88, 1.12) / run.speed;
       warnSpike();
     }
     // the three coins sit at fixed points in the level
