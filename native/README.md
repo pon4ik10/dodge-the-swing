@@ -18,6 +18,15 @@ Copy that file to a phone and tap it. Android warns that it is from an
 unknown source because it is not from the Play Store - that is expected,
 and the warning is dismissible.
 
+## Why the version number matters
+
+`npm run apk` bumps `versionCode` before every build. Left at 1, each new APK
+looks to Android like the same version already installed: the install is
+refused, and the usual way past that is to uninstall first - which deletes the
+app's storage, taking the signed-in account and every level with it.
+
+Always install the new APK **over** the old one. Do not uninstall.
+
 ## What goes inside
 
 `tools/build_www.js` assembles `native/www`: the page, the sprites, the
