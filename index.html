@@ -3740,6 +3740,20 @@ function todayKey() {
   const d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
+function dayKey(back) {
+  const d = new Date(Date.now() - (back || 0) * 86400000);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+/* Roll the daily over to today, deciding there and then whether the streak
+   survives. Deciding it later went wrong: merely *attempting* today stamped
+   today's date over the record of when you last played, so a skipped day
+   became invisible and the streak carried on as if you had not missed it. */
+function rollDaily() {
+  if (SAVE.daily.date === todayKey()) return;
+  const kept = SAVE.daily.date === dayKey(1) ? (SAVE.daily.streak || 0) : 0;
+  SAVE.daily = { date: todayKey(), done:false, streak: kept, best:0 };
+}
+
 function dailyCfg() {
   const k = todayKey();
   let h = 2166136261;
@@ -3932,7 +3946,7 @@ function die() {
   if (run.mode === 'endless' || run.mode === 'custom') return;
   if (run.mode === 'daily') {
     const pct = run.t / run.L.secs * 100;
-    if (SAVE.daily.date !== todayKey()) SAVE.daily = { date:todayKey(), done:false, streak:SAVE.daily.streak||0, best:0 };
+    rollDaily();
     if (pct > SAVE.daily.best) { SAVE.daily.best = pct; store(); newBest = { pct, t:2.4 }; play('best'); buzz([30,50,30]); }
     return;
   }
@@ -3972,15 +3986,11 @@ function completeLevel() {
 
   if (run.mode === 'daily') {
     const first = SAVE.daily.date !== todayKey() || !SAVE.daily.done;
-    const prevDate = SAVE.daily.date;
-    if (SAVE.daily.date !== todayKey())
-      SAVE.daily = { date:todayKey(), done:false, streak:SAVE.daily.streak||0, best:0 };
-    if (!SAVE.daily.done) {
+    rollDaily();
+    if (!SAVE.daily.done) {              // finishing it twice is still one day
       SAVE.daily.done = true;
       SAVE.daily.best = 100;
-      const y = new Date(Date.now() - 86400000);
-      const yk = y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
-      SAVE.daily.streak = (prevDate === yk || prevDate === todayKey()) ? (SAVE.daily.streak||0)+1 : 1;
+      SAVE.daily.streak = (SAVE.daily.streak || 0) + 1;
       store();
     }
     document.getElementById('cmpName').textContent = run.L.n;
