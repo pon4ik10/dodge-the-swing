@@ -2535,6 +2535,40 @@ function accDone(d, note) {
   note.textContent = '';
   buildAccount();
   play('best'); buzz(25);
+  restoreMyLevels(note);
+}
+
+/* Your levels used to live only in this browser's storage, so anything that
+   cleared it - reinstalling the app, a phone tidying up, switching between the
+   app and the website - took them with it, published or not. Signing in now
+   pulls back everything you published, so the account is what owns your work. */
+function restoreMyLevels(note) {
+  const a = account();
+  if (!LIKES_API || !a) return;
+  apiGet('/levels?author=' + encodeURIComponent(a.uid))
+    .then(d => {
+      const mine = (d && d.levels) || [];
+      const have = myLevels();
+      const missing = mine.filter(m => !have.some(l => l.id === m.id));
+      if (!missing.length) return;
+      if (note) note.textContent = 'Getting your levels back...';
+      return Promise.all(missing.map(m =>
+        apiGet('/level?id=' + encodeURIComponent(m.id))
+          .then(r => {
+            const lv = r && r.level;
+            if (!lv || !Array.isArray(lv.obj)) return;
+            myLevels().push({ id:lv.id, name:lv.name, secs:lv.secs, obj:lv.obj,
+                              diff:lv.diff || 1, bg:lv.bg, gr:lv.gr, music:lv.music,
+                              mStart:lv.mStart || 0, mRate:lv.mRate || 1,
+                              sw:lv.sw || ['#3ac9ff','#ffffff'], published:true });
+          }).catch(() => {})
+      )).then(() => {
+        store();
+        if (note) note.textContent = '';
+        achievement('LEVELS RESTORED', missing.length + ' from your account', undefined);
+      });
+    })
+    .catch(() => {});
 }
 function accProblem(e, note) {
   // A player is not going to start a Node server; only say that on the machine
@@ -2700,7 +2734,9 @@ function openLevelInfo(info, local) {
   document.getElementById('liPlays').textContent = info.plays === undefined ? '-' : info.plays;
   document.getElementById('liLikes').textContent = info.likes === undefined ? '-' : info.likes;
   document.getElementById('liLen').textContent = (info.secs || 30) + 's';
-  document.getElementById('liEdit').style.display = local ? '' : 'none';
+  const a = account();
+  const mineOnServer = !!(a && info.authorId && info.authorId === a.uid);
+  document.getElementById('liEdit').style.display = (local || mineOnServer) ? '' : 'none';
   document.getElementById('liNote').textContent = '';
 }
 const LI = { info:null, local:null };
@@ -3374,7 +3410,22 @@ document.getElementById('liBack').addEventListener('click', () => {
   state = 'search'; show('search'); buildSearch();
 });
 document.getElementById('liEdit').addEventListener('click', () => {
-  if (LI.local) openEditor(JSON.parse(JSON.stringify(LI.local)));
+  if (LI.local) { openEditor(JSON.parse(JSON.stringify(LI.local))); return; }
+  // no copy on this device - fetch the published one back out of your account
+  const note = document.getElementById('liNote');
+  note.textContent = 'Fetching your level...';
+  apiGet('/level?id=' + encodeURIComponent(LI.info.id))
+    .then(r => {
+      const lv = r && r.level;
+      if (!lv || !Array.isArray(lv.obj)) { note.textContent = 'Could not fetch it'; return; }
+      const copy = { id:lv.id, name:lv.name, secs:lv.secs, obj:lv.obj, diff:lv.diff || 1,
+                     bg:lv.bg, gr:lv.gr, music:lv.music, mStart:lv.mStart || 0,
+                     mRate:lv.mRate || 1, sw:lv.sw || ['#3ac9ff','#ffffff'], published:true };
+      if (!myLevels().some(l => l.id === copy.id)) { myLevels().push(copy); store(); }
+      note.textContent = '';
+      openEditor(JSON.parse(JSON.stringify(copy)));
+    })
+    .catch(() => { note.textContent = 'Could not reach the server'; });
 });
 document.getElementById('liPlay').addEventListener('click', () => {
   if (LI.local) { bumpPlay(LI.local.id); startCustom(JSON.parse(JSON.stringify(LI.local)), 'search'); return; }
@@ -5089,7 +5140,7 @@ if (window.__DTS_TEST) window.__dts = {
          snapshot, restoreSnap, step,
          setInput: (l, r, j) => { input.left = l; input.right = r; input.jump = j; },
          getInput: () => input,
-         submitScore, endRun, buildWorldBoard,
+         submitScore, endRun, buildWorldBoard, restoreMyLevels,
          tickOrientation: () => checkOrientation(),
          redeem, coinBank, CODES, palette, REWARDS, COIN_REWARDS, CUBE_DEF, defUnlocked, haveCube, achievement, syncCoinPrizes, DEV_TOOLS,
          setState: v => { state = v; } },

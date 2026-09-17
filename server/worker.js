@@ -163,19 +163,24 @@ export default {
     if (path === '/levels') {
       const q = clean(url.searchParams.get('q'), 24).toLowerCase();
       const wantDiff = parseInt(url.searchParams.get('diff') || '0', 10);
+      // everything one account published, so a player who lost their device
+      // copy can pull their own levels back
+      const wantAuthor = clean(url.searchParams.get('author'), 40);
       const list = await env.STATS.list({ prefix: 'lvl:', limit: 200 });
       const out = [];
       for (const k of list.keys) {
         const raw = await env.STATS.get(k.name);
         if (!raw) continue;
         const lv = JSON.parse(raw);
+        if (wantAuthor && lv.authorId !== wantAuthor) continue;
         if (wantDiff && (lv.diff || 0) !== wantDiff) continue;
         if (q && lv.name.toLowerCase().indexOf(q) < 0 &&
                  lv.id.toLowerCase().indexOf(q) < 0 &&
                  lv.author.toLowerCase().indexOf(q) < 0) continue;
         const m = await meta(env, lv.id);
-        out.push({ id: lv.id, name: lv.name, author: lv.author, diff: lv.diff || 0,
-                   secs: lv.secs, objects: lv.obj.length, plays: m.plays, likes: m.likes });
+        out.push({ id: lv.id, name: lv.name, author: lv.author, authorId: lv.authorId,
+                   diff: lv.diff || 0, secs: lv.secs, objects: lv.obj.length,
+                   plays: m.plays, likes: m.likes });
         if (out.length >= 60) break;
       }
       out.sort((a, b) => b.likes - a.likes);

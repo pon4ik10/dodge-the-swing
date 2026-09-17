@@ -125,11 +125,14 @@ http.createServer((req, res) => {
     if (p === '/levels') {
       const q = clean(url.searchParams.get('q'), 24).toLowerCase();
       const wantDiff = parseInt(url.searchParams.get('diff') || '0', 10);
+      const wantAuthor = clean(url.searchParams.get('author'), 40);
       const out = Object.values(db.lvl)
+        .filter(lv => !wantAuthor || lv.authorId === wantAuthor)
         .filter(lv => !wantDiff || (lv.diff || 0) === wantDiff)
         .filter(lv => !q ||
         lv.name.toLowerCase().includes(q) || lv.id.toLowerCase().includes(q) || lv.author.toLowerCase().includes(q))
-        .map(lv => ({ id: lv.id, name: lv.name, author: lv.author, secs: lv.secs, diff: lv.diff || 0,
+        .map(lv => ({ id: lv.id, name: lv.name, author: lv.author, authorId: lv.authorId,
+                      secs: lv.secs, diff: lv.diff || 0,
                       objects: lv.obj.length, plays: meta(lv.id).plays, likes: meta(lv.id).likes }))
         .sort((a, b) => b.likes - a.likes).slice(0, 60);
       return send(res, { levels: out });
